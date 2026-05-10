@@ -14,6 +14,7 @@ from auth import schemas, service
 from auth.jwt import decode_token
 from cache.client import redis_client
 from core.config import settings
+from core.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -228,6 +229,20 @@ async def oauth_callback(
     auth = await service._create_auth_session(new_user, db)
     _set_auth_cookies(response, auth["access_token"], auth["refresh_token"])
     return RedirectResponse(url="/dashboard")
+
+
+@router.get("/me", response_model=schemas.AuthResponse)
+async def get_me(current_user: dict = Depends(get_current_user)):
+    """Return the currently authenticated user's info."""
+    return {
+        "success": True,
+        "user": {
+            "id":        current_user["user_id"],
+            "email":     current_user["email"],
+            "full_name": current_user["full_name"],
+            "role":      current_user["role"],
+        },
+    }
 
 
 @router.post("/oauth/link", response_model=schemas.MessageResponse)

@@ -44,7 +44,7 @@ export default function NotificationsPage() {
   }, []);
 
   const iconMap = {
-    info: <Bell className="h-5 w-5 text-blue-500" />,
+    info: <Bell className="h-5 w-5 text-primary-500" />,
     warning: <AlertCircle className="h-5 w-5 text-yellow-500" />,
     success: <ShieldCheck className="h-5 w-5 text-green-500" />,
   };
@@ -61,7 +61,7 @@ export default function NotificationsPage() {
             <div
               key={n.id}
               className={`flex items-start gap-3 rounded-lg border p-4 ${
-                n.read ? "border-gray-200 bg-white" : "border-blue-200 bg-blue-50"
+                n.read ? "border-gray-200 bg-white" : "border-primary-200 bg-primary-50"
               }`}
             >
               <div className="mt-0.5">{iconMap[n.type]}</div>

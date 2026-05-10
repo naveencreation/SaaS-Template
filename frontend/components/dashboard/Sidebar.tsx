@@ -48,7 +48,7 @@ export function Sidebar() {
               href={link.href}
               className={`flex items-center rounded-md px-3 py-2 text-sm font-medium ${
                 active
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-primary-50 text-primary-700"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >

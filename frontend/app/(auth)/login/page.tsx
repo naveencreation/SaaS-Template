@@ -58,7 +58,7 @@ export default function LoginPage() {
       </form>
 
       <p className="mt-4 text-center text-sm text-gray-600">
-        <Link href="/forgot-password" className="text-blue-600 hover:underline">
+        <Link href="/forgot-password" className="text-primary-600 hover:underline">
           Forgot password?
         </Link>
       </p>
@@ -89,7 +89,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-gray-600">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-blue-600 hover:underline">
+        <Link href="/signup" className="text-primary-600 hover:underline">
           Sign up
         </Link>
       </p>

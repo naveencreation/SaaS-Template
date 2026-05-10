@@ -69,8 +69,8 @@ export default function DashboardHome() {
                   {stats[key]}
                 </p>
               </div>
-              <div className="rounded-full bg-blue-50 p-3">
-                <Icon className="h-6 w-6 text-blue-600" />
+              <div className="rounded-full bg-primary-50 p-3">
+                <Icon className="h-6 w-6 text-primary-600" />
               </div>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function DashboardHome() {
             ) : (
               stats.recent_activity.map((act, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className="mt-1 h-2 w-2 rounded-full bg-blue-500" />
+                  <div className="mt-1 h-2 w-2 rounded-full bg-primary-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                       {act.action.replace(/_/g, " ")}

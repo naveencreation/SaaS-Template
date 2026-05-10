@@ -79,7 +79,7 @@ export default function ProfilePage() {
         {/* Profile info */}
         <Card>
           <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-blue-600" />
+            <User className="h-5 w-5 text-primary-600" />
             <h2 className="text-lg font-semibold text-gray-900">Account Info</h2>
           </div>
           <div className="mt-4 space-y-4">
@@ -114,7 +114,7 @@ export default function ProfilePage() {
         {/* Password change */}
         <Card>
           <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-blue-600" />
+            <Lock className="h-5 w-5 text-primary-600" />
             <h2 className="text-lg font-semibold text-gray-900">Change Password</h2>
           </div>
           <form onSubmit={handleChangePassword} className="mt-4 space-y-4">

@@ -46,7 +46,7 @@ export default function ResetPasswordPage() {
           Your password has been reset successfully.
         </p>
         <p className="mt-4 text-sm text-gray-500">
-          <Link href="/login" className="text-blue-600 hover:underline">
+          <Link href="/login" className="text-primary-600 hover:underline">
             Log in with your new password
           </Link>
         </p>

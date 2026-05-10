@@ -15,7 +15,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-blue-600" />
+            <Settings className="h-5 w-5 text-primary-600" />
             <h2 className="text-lg font-semibold text-gray-900">Application Info</h2>
           </div>
           <div className="mt-4 space-y-3">
@@ -27,7 +27,7 @@ export default function SettingsPage() {
 
         <Card>
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-600" />
+            <Shield className="h-5 w-5 text-primary-600" />
             <h2 className="text-lg font-semibold text-gray-900">Security Settings</h2>
           </div>
           <div className="mt-4 space-y-3 text-sm">
@@ -56,7 +56,7 @@ export default function SettingsPage() {
 
         <Card>
           <div className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-blue-600" />
+            <Database className="h-5 w-5 text-primary-600" />
             <h2 className="text-lg font-semibold text-gray-900">Database</h2>
           </div>
           <div className="mt-4 text-sm text-gray-600">
@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
         <Card>
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-blue-600" />
+            <Mail className="h-5 w-5 text-primary-600" />
             <h2 className="text-lg font-semibold text-gray-900">Email Providers</h2>
           </div>
           <div className="mt-4 text-sm text-gray-600">

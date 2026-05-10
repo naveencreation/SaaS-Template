@@ -26,7 +26,7 @@ export default function AnalyticsPage() {
   const barColor = (role: string) => {
     const map: Record<string, string> = {
       super_admin: "bg-purple-500",
-      admin: "bg-blue-500",
+      admin: "bg-primary-500",
       guest: "bg-green-500",
       user: "bg-yellow-500",
     };
@@ -39,7 +39,7 @@ export default function AnalyticsPage() {
         {/* Signup Trends */}
         <div className="rounded-lg border border-gray-200 bg-white p-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
+            <TrendingUp className="h-5 w-5 text-primary-600" />
             Signup Trends (30 days)
           </h3>
           <div className="mt-4 h-48 flex items-end gap-1">
@@ -49,7 +49,7 @@ export default function AnalyticsPage() {
               data.signup_trends.map((day) => (
                 <div key={day.date} className="flex flex-1 flex-col items-center gap-1">
                   <div
-                    className="w-full rounded-t bg-blue-500"
+                    className="w-full rounded-t bg-primary-500"
                     style={{
                       height: `${(day.count / maxSignup) * 100}%`,
                       minHeight: day.count > 0 ? "4px" : "0",
@@ -67,7 +67,7 @@ export default function AnalyticsPage() {
         {/* Role Distribution */}
         <div className="rounded-lg border border-gray-200 bg-white p-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <Users className="h-5 w-5 text-blue-600" />
+            <Users className="h-5 w-5 text-primary-600" />
             Role Distribution
           </h3>
           <div className="mt-4 space-y-3">
@@ -95,7 +95,7 @@ export default function AnalyticsPage() {
         {/* Login Activity */}
         <div className="rounded-lg border border-gray-200 bg-white p-6 lg:col-span-2">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <LogIn className="h-5 w-5 text-blue-600" />
+            <LogIn className="h-5 w-5 text-primary-600" />
             Login Activity (30 days)
           </h3>
           <div className="mt-4 h-48 flex items-end gap-1">

@@ -6,14 +6,16 @@ const ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || "changeme123";
 
 // ── Helper: login via UI ──────────────────────────────────────────────────
 async function loginAs(page, email, password) {
-  await page.goto(`${BASE}/login`);
+  await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+  await page.locator('input[name="email"]').waitFor({ state: "visible", timeout: 30000 });
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
-  // Wait for navigation OR error paragraph (red text) to appear
+  // Wait for navigation OR error paragraph (red text) to appear.
+  // Generous timeout because /api/auth/login compiles on first hit in dev.
   await Promise.race([
-    page.waitForURL(`${BASE}/dashboard`, { timeout: 10000 }),
-    page.waitForSelector("p.text-red-600", { timeout: 10000 }),
+    page.waitForURL(`${BASE}/dashboard`, { timeout: 30000 }),
+    page.waitForSelector("p.text-red-600", { timeout: 30000 }),
   ]);
   const url = page.url();
   if (!url.includes("/dashboard")) {

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
@@ -39,19 +40,21 @@ app.include_router(users_router, prefix="/api")
 #   { "success": false, "error": { "code", "message", "status" } }
 # Never return FastAPI's default { "detail": "..." } format.
 # ─────────────────────────────────────────────────────────────────────────
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    """Unwrap HTTPException(detail={...}) so the standard shape is returned at the top level."""
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Unwrap HTTPException(detail={...}) so the standard shape is returned at the top level.
+    Also catches Starlette's built-in 404/405 to enforce the standard error shape."""
     detail = exc.detail
     if isinstance(detail, dict) and "success" in detail and "error" in detail:
         return JSONResponse(status_code=exc.status_code, content=detail)
-    # Generic HTTPException (e.g. raised by FastAPI internals) — wrap it.
+    # Generic HTTPException (e.g. raised by FastAPI internals, 404 not found, 405) — wrap it.
+    code_map = {404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED", 401: "NOT_AUTHENTICATED", 403: "FORBIDDEN"}
     return JSONResponse(
         status_code=exc.status_code,
         content={
             "success": False,
             "error": {
-                "code": "HTTP_ERROR",
+                "code": code_map.get(exc.status_code, "HTTP_ERROR"),
                 "message": str(detail) if detail else "An error occurred.",
                 "status": exc.status_code,
             },

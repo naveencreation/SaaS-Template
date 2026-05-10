@@ -11,16 +11,23 @@ source "${SCRIPT_DIR}/helpers/mailhog.sh"
 
 BASE="http://localhost:3000/api"
 
-# Load .env for admin credentials
+# Load .env for admin credentials. Only extract specific vars to avoid
+# issues with values containing spaces (e.g. APP_NAME="My SaaS").
 ENV_FILE=".env"
+_load_env_var() {
+  local var="$1"
+  grep -E "^${var}=" "$ENV_FILE" 2>/dev/null | head -n 1 | cut -d '=' -f2- | sed 's/^"//;s/"$//'
+}
 if [ -f "$ENV_FILE" ]; then
-  set -a
-  # shellcheck disable=SC1090
-  source <(grep -E '^[A-Z_]+=.*' "$ENV_FILE" | sed 's/"//g')
-  set +a
+  SUPER_ADMIN_EMAIL="$(_load_env_var SUPER_ADMIN_EMAIL)"
+  SUPER_ADMIN_PASSWORD="$(_load_env_var SUPER_ADMIN_PASSWORD)"
+  POSTGRES_USER="$(_load_env_var POSTGRES_USER)"
+  POSTGRES_DB="$(_load_env_var POSTGRES_DB)"
 fi
 ADMIN_EMAIL="${SUPER_ADMIN_EMAIL:-admin@myapp.com}"
 ADMIN_PASSWORD="${SUPER_ADMIN_PASSWORD:-changeme123}"
+PGUSER="${POSTGRES_USER:-postgres}"
+PGDB="${POSTGRES_DB:-postgres}"
 TEST_PASSWORD="Test1234!"
 TEST_EMAIL="testuser_$(date +%s)@test.com"
 COOKIE_JAR="/tmp/test_cookies.txt"
@@ -52,6 +59,17 @@ _curl() {
   body=$(echo "$out" | sed '$d')
   echo "$body"
   echo "$status"
+}
+
+# Helper: log admin in fresh; returns 0 if cookie obtained, 1 otherwise
+_admin_relogin() {
+  rm -f "$ADMIN_COOKIE_JAR"
+  local status
+  status=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/auth/login" \
+    -c "$ADMIN_COOKIE_JAR" \
+    -H "Content-Type: application/json" \
+    -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" 2>/dev/null)
+  [ "$status" = "200" ]
 }
 
 # ── Auth Flow ────────────────────────────────────────────────────────────────
@@ -113,13 +131,15 @@ fi
 
 # Test #15: GET /api/auth/me as admin
 if [ "$ADMIN_AUTH_OK" = true ]; then
-  ME_BODY=$(curl -s -b "$ADMIN_COOKIE_JAR" "$BASE/auth/me" 2>/dev/null)
-  ME_EMAIL=$(echo "$ME_BODY" | jq -r '.user.email // empty')
-  ME_ROLE=$(echo "$ME_BODY" | jq -r '.user.role // empty')
+  ME_RAW=$(curl -s -w "\n%{http_code}" -b "$ADMIN_COOKIE_JAR" "$BASE/auth/me" 2>/dev/null)
+  ME_STATUS=$(echo "$ME_RAW" | tail -n 1)
+  ME_BODY=$(echo "$ME_RAW" | sed '$d')
+  ME_EMAIL=$(echo "$ME_BODY" | jq -r '.user.email // empty' 2>/dev/null)
+  ME_ROLE=$(echo "$ME_BODY" | jq -r '.user.role // empty' 2>/dev/null)
   if [ "$ME_EMAIL" = "$ADMIN_EMAIL" ] && [ "$ME_ROLE" = "super_admin" ]; then
     pass 15 "GET /auth/me returns admin user with super_admin role"
   else
-    fail 15 "GET /auth/me returns admin user" "email=$ADMIN_EMAIL role=super_admin" "email=$ME_EMAIL role=$ME_ROLE"
+    fail 15 "GET /auth/me returns admin user" "email=$ADMIN_EMAIL role=super_admin" "status=$ME_STATUS body=$ME_BODY"
   fi
 else
   skip 15 "GET /auth/me as admin"
@@ -182,12 +202,12 @@ fi
 
 # ── RBAC ─────────────────────────────────────────────────────────────────────
 
-# Re-login as admin for RBAC tests
+# Re-login as admin for RBAC tests (logout in test #16 cleared the cookie)
 if [ "$ADMIN_AUTH_OK" = true ]; then
-  curl -s -X POST "$BASE/auth/login" \
-    -c "$ADMIN_COOKIE_JAR" \
-    -H "Content-Type: application/json" \
-    -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" >/dev/null 2>&1 || true
+  if ! _admin_relogin; then
+    echo "    WARNING: admin re-login failed. Subsequent admin-authed tests will be skipped."
+    ADMIN_AUTH_OK=false
+  fi
 fi
 
 # Re-login as test user (password may have changed)
@@ -260,7 +280,8 @@ fi
 # Test #26: Update user role to manager
 if [ "$ADMIN_AUTH_OK" = true ] && [ -n "$TEST_USER_ID" ]; then
   # Get manager role id
-  TEST_ROLE_ID=$(docker exec infra-postgres-1 psql -U postgres -d postgres -t -c "SELECT id FROM roles WHERE name='manager';" 2>/dev/null | tr -d ' \n')
+  PG_CONTAINER=$(docker ps --format '{{.Names}}' | grep 'postgres-1$' | head -n 1)
+  TEST_ROLE_ID=$(docker exec "$PG_CONTAINER" psql -U "$PGUSER" -d "$PGDB" -t -c "SELECT id FROM roles WHERE name='manager';" 2>/dev/null | tr -d ' \n')
   if [ -n "$TEST_ROLE_ID" ]; then
     ROLE_BODY=$(curl -s -w "\n%{http_code}" -X PUT "$BASE/users/$TEST_USER_ID/role" \
       -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \

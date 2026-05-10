@@ -30,12 +30,31 @@ _decode_base64() {
 extract_token_from_email() {
   local raw="$1"
   local pattern="$2"
-  local encoded_body
-  encoded_body=$(_get_email_body "$raw")
   local body
-  body=$(_decode_base64 "$encoded_body")
-  # Extract token from URL like /verify-email?token=abc123 or /reset-password?token=abc123
-  echo "$body" | grep -oE "${pattern}=[A-Za-z0-9_-]+" | head -n 1 | cut -d '=' -f2
+  body=$(_get_email_body "$raw")
+  local token
+
+  # Try 1: extract from plaintext body directly (MailHog usually returns plaintext)
+  token=$(echo "$body" | grep -oE "${pattern}=[A-Za-z0-9_.-]+" | head -n 1 | cut -d '=' -f2)
+  if [ -n "$token" ]; then
+    echo "$token"
+    return 0
+  fi
+
+  # Try 2: body might be quoted-printable (replace =\n with nothing and =3D with =)
+  local qp_body
+  qp_body=$(echo "$body" | tr -d '\r' | sed -E ':a;N;$!ba;s/=\n//g; s/=3D/=/g')
+  token=$(echo "$qp_body" | grep -oE "${pattern}=[A-Za-z0-9_.-]+" | head -n 1 | cut -d '=' -f2)
+  if [ -n "$token" ]; then
+    echo "$token"
+    return 0
+  fi
+
+  # Try 3: body might be base64
+  local decoded
+  decoded=$(_decode_base64 "$body")
+  token=$(echo "$decoded" | grep -oE "${pattern}=[A-Za-z0-9_.-]+" | head -n 1 | cut -d '=' -f2)
+  echo "$token"
 }
 
 wait_for_email() {

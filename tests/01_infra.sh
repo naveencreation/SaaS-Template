@@ -10,12 +10,16 @@ source "${SCRIPT_DIR}/helpers/assert.sh"
 COMPOSE_FILE="infra/docker-compose.yml"
 ENV_FILE=".env"
 
-# Load .env so we use the real DB credentials
+# Load .env so we use the real DB credentials. Only extract specific vars
+# to avoid issues with values containing spaces (e.g. APP_NAME="My SaaS").
+_load_env_var() {
+  local var="$1"
+  grep -E "^${var}=" "$ENV_FILE" 2>/dev/null | head -n 1 | cut -d '=' -f2- | sed 's/^"//;s/"$//'
+}
 if [ -f "$ENV_FILE" ]; then
-  set -a
-  # shellcheck disable=SC1090
-  source <(grep -E '^[A-Z_]+=.*' "$ENV_FILE" | sed 's/"//g')
-  set +a
+  POSTGRES_USER="$(_load_env_var POSTGRES_USER)"
+  POSTGRES_DB="$(_load_env_var POSTGRES_DB)"
+  SUPER_ADMIN_EMAIL="$(_load_env_var SUPER_ADMIN_EMAIL)"
 fi
 PGUSER="${POSTGRES_USER:-postgres}"
 PGDB="${POSTGRES_DB:-postgres}"

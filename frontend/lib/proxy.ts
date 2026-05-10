@@ -17,16 +17,24 @@ export function createProxyHandler(path: string = "") {
       "Content-Type": req.headers.get("Content-Type") || "application/json",
     };
 
-    // Forward Authorization header if present
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
-      headers["Authorization"] = authHeader;
-    }
-
     // Forward Cookie header for session cookies
     const cookieHeader = req.headers.get("Cookie");
     if (cookieHeader) {
       headers["Cookie"] = cookieHeader;
+    }
+
+    // Convert the httpOnly access_token cookie into an Authorization header
+    // so the backend's get_current_user dependency (which reads the Authorization
+    // header) can validate the JWT. This is the single point where the proxy
+    // bridges browser cookies → backend bearer auth.
+    const explicitAuth = req.headers.get("Authorization");
+    if (explicitAuth) {
+      headers["Authorization"] = explicitAuth;
+    } else {
+      const accessToken = req.cookies.get("access_token")?.value;
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
     }
 
     const body = req.method !== "GET" && req.method !== "HEAD"

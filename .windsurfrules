@@ -1,0 +1,531 @@
+# SaaS Starter Template — Windsurf Cascade Rules
+# ============================================================
+# This file is the law. Cascade must follow every rule here
+# on every single interaction without exception.
+# Do not override, ignore, or work around any rule below.
+# ============================================================
+
+---
+
+## 1. PROJECT IDENTITY
+
+This is a production-grade, pluggable SaaS starter template sold to developers.
+Its core promise: "Copy 4 files, add 2 config lines, run docker compose up — your feature is live."
+
+The template is split into zones:
+- TEMPLATE zone  → pre-built infrastructure the buyer never touches
+- BUYER zone     → the only place buyers add their business logic
+- CONFIG zone    → TypeScript and .env files buyers edit to configure behaviour
+
+Cascade must always know which zone it is working in. Never write buyer business logic
+into TEMPLATE zone files. Never modify TEMPLATE zone files unless the phase instruction
+explicitly says to.
+
+---
+
+## 2. TECH STACK — USE EXACTLY THESE, NO SUBSTITUTIONS
+
+| Layer            | Technology                        |
+|------------------|-----------------------------------|
+| Frontend         | Next.js (App Router), TypeScript  |
+| Backend          | FastAPI, Python 3.12              |
+| Database         | PostgreSQL 15                     |
+| ORM              | SQLAlchemy 2.x (async)            |
+| Migrations       | Alembic                           |
+| Cache / Sessions | Redis 7                           |
+| Auth             | JWT (access + refresh tokens)     |
+| Password Hashing | bcrypt (cost factor 12 minimum)   |
+| Containers       | Docker + Docker Compose           |
+| Reverse Proxy    | Nginx                             |
+| SSL              | Certbot (Let's Encrypt)           |
+| Email (dev)      | MailHog                           |
+| Email (prod)     | Resend / SendGrid / SMTP (buyer's choice via .env) |
+| Styling          | Tailwind CSS only                 |
+| Node Version     | 20                                |
+
+Never introduce: Prisma, NextAuth, Clerk, Supabase, tRPC, GraphQL, Drizzle,
+or any other library not specified here unless the phase instruction explicitly adds it.
+
+---
+
+## 3. ARCHITECTURE RULES — NEVER VIOLATE THESE
+
+### 3.1 Proxy Pattern (Most Critical Rule)
+- FastAPI is NEVER exposed to the public internet. Port 8000 is internal only.
+- ALL browser API calls go through Next.js API routes which proxy internally to FastAPI.
+- The `createProxyHandler` utility in `frontend/lib/proxy.ts` handles all proxy logic.
+- Buyers add one line per feature route: `export const { GET, POST, PUT, DELETE } = createProxyHandler('/your-feature')`
+- Never call FastAPI directly from browser-side code.
+
+### 3.2 Token and Cookie Safety
+- JWT access tokens and refresh tokens are stored in httpOnly cookies only.
+- Tokens NEVER go into localStorage, sessionStorage, or any JS-accessible storage.
+- Tokens NEVER touch the browser. They live server-side in Next.js and are forwarded internally.
+- The browser never sees a raw JWT string.
+
+### 3.3 Single Origin
+- Browser only ever talks to one domain (the Next.js frontend).
+- There are no CORS configuration changes needed because FastAPI is internal.
+
+### 3.4 Docker Network
+- All services communicate on the internal Docker network named `saas-network`.
+- Only these ports are ever exposed to the host machine:
+  - 3000 → frontend (Next.js)
+  - 8025 → MailHog UI (dev only)
+- Port 8000 (FastAPI), 5432 (Postgres), 6379 (Redis) are NEVER exposed to the host.
+
+### 3.5 Docker Compose Location
+- `docker-compose.yml` (dev) lives at `infra/docker-compose.yml`
+- `docker-compose.prod.yml` (prod) lives at `infra/docker-compose.prod.yml`
+- All docker compose commands use: `docker compose -f infra/docker-compose.yml up`
+- Never move docker-compose files to the project root.
+
+### 3.6 Startup Order (Enforced via depends_on + healthchecks)
+```
+postgres starts → healthcheck passes
+redis starts    → healthcheck passes
+     ↓
+migrate service runs:
+  1. alembic upgrade head
+  2. python scripts/seed.py
+  3. python scripts/detect_unapplied.py (dev only)
+     ↓
+backend starts (uvicorn --reload in dev, gunicorn in prod)
+frontend starts
+```
+Never start backend before migrate completes. Always use healthchecks on postgres and redis.
+
+---
+
+## 4. FOLDER STRUCTURE — ZONES AND OWNERSHIP
+
+```
+saas-template/
+├── frontend/
+│   ├── app/
+│   │   ├── (public)/              ← TEMPLATE — landing, pricing, about
+│   │   ├── (auth)/                ← TEMPLATE — login, signup, verify, reset
+│   │   └── (dashboard)/           ← TEMPLATE — protected shell
+│   │       ├── layout.tsx         ← TEMPLATE — sidebar + topbar
+│   │       ├── page.tsx           ← TEMPLATE — dashboard home
+│   │       ├── analytics/         ← TEMPLATE
+│   │       ├── notifications/     ← TEMPLATE
+│   │       ├── settings/          ← TEMPLATE (super_admin only)
+│   │       ├── user-management/   ← TEMPLATE
+│   │       └── business/          ← BUYER ZONE — buyer adds pages here
+│   ├── app/api/
+│   │   ├── auth/                  ← TEMPLATE
+│   │   ├── users/                 ← TEMPLATE
+│   │   └── business/              ← BUYER ZONE — buyer adds proxy routes here
+│   ├── config/                    ← CONFIG ZONE — buyer edits these
+│   │   ├── auth.config.ts         ← toggle OAuth providers
+│   │   ├── roles.config.ts        ← route permission map
+│   │   ├── nav.config.ts          ← sidebar links
+│   │   └── features.config.ts     ← feature flags
+│   ├── components/
+│   │   ├── ui/                    ← TEMPLATE — shared UI components
+│   │   └── rbac/                  ← TEMPLATE — CanAccess component
+│   ├── hooks/
+│   │   ├── useData.ts             ← TEMPLATE
+│   │   └── useMutation.ts         ← TEMPLATE
+│   ├── lib/
+│   │   ├── proxy.ts               ← TEMPLATE — createProxyHandler
+│   │   ├── session.ts             ← TEMPLATE — session helpers
+│   │   └── config-validator.ts    ← TEMPLATE
+│   └── middleware.ts              ← TEMPLATE — route protection + RBAC
+│
+├── backend/
+│   ├── auth/                      ← TEMPLATE
+│   ├── rbac/                      ← TEMPLATE
+│   ├── users/                     ← TEMPLATE
+│   ├── email/                     ← TEMPLATE
+│   ├── db/                        ← TEMPLATE
+│   │   ├── base.py                ← TEMPLATE — BaseModel mixin
+│   │   ├── session.py             ← TEMPLATE — get_db dependency
+│   │   └── models/                ← TEMPLATE — user, role, oauth, audit models
+│   ├── redis/                     ← TEMPLATE
+│   ├── business/                  ← BUYER ZONE — buyer adds features here
+│   │   ├── _example_router.py     ← TEMPLATE — example to copy
+│   │   └── {feature}/             ← BUYER creates this
+│   ├── core/
+│   │   ├── config.py              ← TEMPLATE — pydantic-settings validator
+│   │   └── dependencies.py        ← TEMPLATE — get_current_user
+│   └── main.py                    ← TEMPLATE — auto-registers business routers
+│
+├── infra/
+│   ├── docker-compose.yml         ← TEMPLATE (dev)
+│   ├── docker-compose.prod.yml    ← TEMPLATE (prod)
+│   ├── nginx/nginx.conf           ← TEMPLATE
+│   └── scripts/
+│       ├── deploy.sh              ← TEMPLATE
+│       └── backup.sh              ← TEMPLATE
+│
+├── docs/                          ← TEMPLATE — buyer-facing docs
+├── .env                           ← CONFIG — never committed to git
+├── .env.example                   ← CONFIG — committed, all vars documented
+├── .env.prod.example              ← CONFIG — committed, prod vars documented
+└── .windsurfrules                 ← always committed to git
+```
+
+---
+
+## 5. DATABASE RULES
+
+### 5.1 Core Tables (TEMPLATE — never modify)
+- `roles` — system roles: super_admin, admin, user, guest (is_system=true, cannot be deleted)
+- `users` — one role per user (role_id FK to roles). Single role model. Buyers extend if needed.
+- `oauth_accounts` — one user can have multiple OAuth providers linked
+- `audit_logs` — login, logout, signup, role_change, password_reset events
+
+### 5.2 BaseModel Mixin — All Models Must Extend This
+Every SQLAlchemy model (template and buyer) extends `BaseModel` from `backend/db/base.py`.
+This gives every table: `id` (UUID, PK), `created_at` (timestamptz), `updated_at` (timestamptz).
+Never define id, created_at, or updated_at manually in any model — they come from BaseModel.
+
+### 5.3 Buyer Models
+- Live in `backend/business/{feature}/models.py`
+- Extend `BaseModel` always
+- Use UUID primary keys always
+- Reference `users.id` with a `user_id` FK when data is user-owned
+
+### 5.4 Migrations
+- Dev: `detect_unapplied.py` auto-generates and applies migrations. Print a warning after.
+- Prod: `check_prod_migrations.py` BLOCKS startup if unapplied migrations exist. Exit code 1.
+- Never manually write SQL migration files — always use `alembic revision --autogenerate`
+- Seed script (`seed.py`) is idempotent — uses `ON CONFLICT DO NOTHING` logic
+
+### 5.5 Redis Key Patterns — Always Use Exactly These
+```
+session:{user_id}           → Hash, TTL 7 days, fields: access_token, refresh_token, role, email, full_name
+blacklist:{token_jti}       → String "1", TTL = remaining token lifetime
+verify:{verification_token} → String user_id, TTL 24 hours
+reset:{reset_token}         → String user_id, TTL 1 hour
+```
+Never invent new Redis key patterns without the phase instruction specifying them.
+
+---
+
+## 6. AUTH RULES — SECURITY IS NON-NEGOTIABLE
+
+### 6.1 Token Lifetimes
+- Access token: 15 minutes (JWT, contains: user_id, email, role, jti)
+- Refresh token: 7 days (JWT, contains: user_id, jti)
+- Email verification token: 24 hours (stored in Redis, key: verify:{token})
+- Password reset token: 1 hour (stored in Redis, key: reset:{token})
+
+### 6.2 Security Rules — Never Break These
+- NEVER reveal whether an email exists in any response (login, forgot-password, signup)
+- Login failures always return 401 "Invalid credentials" — never "email not found" or "wrong password"
+- Forgot password always returns 200 with a generic message regardless of whether email exists
+- bcrypt cost factor minimum 12 — never lower
+- Password reset MUST invalidate ALL existing sessions across all devices (delete session:{user_id})
+- Tokens in httpOnly cookies ONLY — never localStorage, never sessionStorage, never response body
+- Email addresses always lowercased before storing or querying
+
+### 6.3 Password Requirements
+- Minimum 8 characters
+- At least 1 uppercase letter
+- At least 1 number
+- Validate on signup and reset password
+
+### 6.4 OAuth Account Linking
+- When OAuth email matches existing user: show confirmation UI before linking — never auto-link silently
+- OAuth-created users: is_verified=true (OAuth emails are pre-verified), password_hash=null
+- One user can link multiple OAuth providers
+
+### 6.5 Session Lifecycle
+- Login: create Redis session, set httpOnly cookies via Next.js
+- Logout: blacklist access token jti, delete Redis session, clear cookies
+- Role change: immediately delete Redis session:{user_id} — user is force logged out
+- Token refresh: called silently by Next.js middleware when access token expires
+
+---
+
+## 7. RBAC RULES
+
+### 7.1 The 4 Roles (Fixed — Never Add or Remove in Template)
+- `super_admin` → full access including system settings and role assignment
+- `admin` → manage users, bypass maintenance, access all business pages
+- `user` → own data, standard business pages
+- `guest` → read-only dashboard access only
+
+### 7.2 Permission Table
+| Permission         | guest | user | admin | super_admin |
+|--------------------|-------|------|-------|-------------|
+| View dashboard     | ✅    | ✅   | ✅    | ✅          |
+| View own profile   | ✅    | ✅   | ✅    | ✅          |
+| Edit own profile   | ❌    | ✅   | ✅    | ✅          |
+| View analytics     | ❌    | ✅   | ✅    | ✅          |
+| Manage own data    | ❌    | ✅   | ✅    | ✅          |
+| View all users     | ❌    | ❌   | ✅    | ✅          |
+| Edit any user      | ❌    | ❌   | ✅    | ✅          |
+| Bypass maintenance | ❌    | ❌   | ✅    | ✅          |
+| Assign roles       | ❌    | ❌   | ❌    | ✅          |
+| Delete users       | ❌    | ❌   | ❌    | ✅          |
+| System settings    | ❌    | ❌   | ❌    | ✅          |
+
+### 7.3 Enforcement: Check Twice — Both Layers Required
+1. **Next.js middleware** (`middleware.ts`) — checks session and role before rendering any page
+2. **FastAPI `@require_roles` decorator** — checks role before returning any data
+
+Both must be present. Removing either is a security hole, not a simplification.
+
+### 7.4 Frontend Role Gating
+- Use `<CanAccess roles={[...]}>` to show/hide UI elements
+- NEVER use inline role checks like `{session.role === 'admin' && <Button />}`
+- `<CanAccess>` only hides UI elements — it does not provide security
+- Real security is enforced by FastAPI `@require_roles` — never rely on frontend alone
+
+### 7.5 Role Change Effect
+- Must be immediate — delete Redis session:{user_id} immediately after DB update
+- User's next request fails session check → redirected to /login
+- No grace period, no delay
+
+---
+
+## 8. FRONTEND CODE RULES
+
+### 8.1 TypeScript
+- Strict mode always. No `any` types unless absolutely unavoidable (document with a comment why).
+- No `// @ts-ignore` without an explanation comment.
+- All props interfaces explicitly typed.
+
+### 8.2 Components
+- Named exports for all components.
+- Default export only for Next.js page files.
+- PascalCase for component names and files.
+- All dashboard page components are `'use client'` when they fetch data.
+
+### 8.3 Styling
+- Tailwind CSS utility classes only.
+- No inline `style={{}}` props unless there is no Tailwind equivalent.
+- No custom `.css` files unless the phase instruction explicitly requires one.
+- No CSS modules.
+
+### 8.4 Data Fetching — Always Use the Provided Hooks
+- GET data → `useData(url)` from `@/hooks/useData`
+- POST / PUT / DELETE / PATCH → `useMutation(baseUrl)` from `@/hooks/useMutation`
+- Never use raw `fetch()` directly in components for API calls.
+- Never use SWR, React Query, or any other data-fetching library — not in this template.
+
+### 8.5 Role Gating in UI
+- Use `<CanAccess roles={[...]}>` wrapper — never check roles manually in JSX.
+
+### 8.6 Pre-built Components — Always Use These, Never Recreate
+All buyer pages must use these components from `@/components/ui`:
+- `PageLayout` — wrapper for every dashboard page, takes a `title` prop
+- `PageSkeleton` — loading state
+- `PageError` — error state with retry button
+- `DataTable` — table with sorting and pagination
+- `CreateButton` — consistent add/create button
+And from `@/components/rbac`:
+- `CanAccess` — role-based element visibility
+
+### 8.7 Navigation and Routing
+- Sidebar links are defined ONLY in `frontend/config/nav.config.ts`
+- Never hardcode nav links anywhere else
+- Route permissions are defined ONLY in `frontend/config/roles.config.ts`
+- Never check route permissions anywhere except `middleware.ts`
+
+### 8.8 Auth Layout Behaviour
+- If authenticated user visits /login or /signup → auto-redirect to /dashboard
+- Middleware handles this — do not add redirect logic to page components
+
+---
+
+## 9. BACKEND CODE RULES
+
+### 9.1 FastAPI Style
+- Async/await everywhere. No synchronous database calls.
+- All endpoints must have a Pydantic `response_model`.
+- Never return raw Python dicts as responses — always go through a Pydantic schema.
+- Use `Depends(get_current_user)` on all protected endpoints.
+- Use `@require_roles([...])` on all role-gated endpoints.
+- All routers use a `prefix` and `tags` in `APIRouter(prefix="/...", tags=["..."])`.
+
+### 9.2 SQLAlchemy
+- Use SQLAlchemy 2.x async patterns.
+- All models extend `BaseModel` from `backend/db/base.py`.
+- Use `get_db` dependency for database sessions.
+- Never create raw SQL strings — use SQLAlchemy ORM methods.
+
+### 9.3 Business Router Auto-Registration
+- `main.py` auto-discovers all packages in `backend/business/` and registers their `router`.
+- Buyer never edits `main.py`. Their router is picked up automatically on restart.
+- A business feature folder must have `router.py` with a variable named `router`.
+
+### 9.4 Email Service
+- Always use `email_service.send(to, subject, html)` from `backend/email/service.py`.
+- Never import email provider adapters directly in business logic.
+- Provider is selected automatically via `EMAIL_PROVIDER` env var.
+
+### 9.5 Configuration
+- All env vars are read through `backend/core/config.py` (pydantic-settings).
+- Never use `os.environ.get()` directly in application code — always use `settings.VAR_NAME`.
+- If an env var is missing or invalid, `config.py` raises a clear error on startup.
+
+---
+
+## 10. API RESPONSE SHAPE — ALWAYS USE THESE EXACTLY
+
+### Success (single item)
+```json
+{ "success": true, "item": { ... } }
+```
+
+### Success (list)
+```json
+{ "success": true, "items": [ ... ], "total": 42 }
+```
+
+### Error (all errors, all endpoints)
+```json
+{
+  "success": false,
+  "error": {
+    "code":    "SCREAMING_SNAKE_CASE_ERROR_CODE",
+    "message": "Human-readable message shown to user",
+    "status":  404
+  }
+}
+```
+
+Never return any other shape. `useData` and `useMutation` hooks expect this shape.
+Never return FastAPI's default `{"detail": "..."}` error format — always use the shape above.
+
+---
+
+## 11. CONFIG SYSTEM RULES
+
+### 11.1 Two Sources of Configuration
+1. `.env` file — secrets, credentials, URLs. NEVER committed to git.
+2. `/config` TypeScript files — behaviour, permissions, navigation. Always committed to git.
+
+### 11.2 Feature Flags (`features.config.ts`)
+```typescript
+export const features = {
+  emailVerification: true,   // false = auto-verify on signup (useful for dev/testing)
+  maintenanceMode:   false,  // true = show maintenance page to non-admin users
+  registrationOpen:  true,   // false = disable signup (invite-only mode)
+  analyticsEnabled:  true,   // false = hide analytics page from sidebar + block route
+
+  // Buyer adds their own feature flags here:
+  // paymentsEnabled:  false,
+  // multiLanguage:    false,
+}
+```
+Maintenance mode is bypassed automatically for `admin` and `super_admin` roles.
+
+### 11.3 Required .env Variables
+These must always be present or the app refuses to start:
+`APP_NAME, APP_URL, ENVIRONMENT, DATABASE_URL, REDIS_URL, JWT_SECRET,
+EMAIL_FROM, SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD`
+
+OAuth credentials are only required when their `*_AUTH_ENABLED=true`.
+
+---
+
+## 12. SECURITY RULES — NON-NEGOTIABLE
+
+- Never expose internal service ports (8000, 5432, 6379) in docker-compose.
+- Never store secrets in code — always `.env`.
+- Never commit `.env` to git — only `.env.example`.
+- Never disable SSL in production.
+- Never reveal email existence in any API response.
+- Never return raw error stack traces to the browser.
+- Never skip the `@require_roles` decorator on protected endpoints.
+- Never skip the Next.js middleware session check.
+- Always sanitize and validate all inputs through Pydantic schemas before use.
+
+---
+
+## 13. BUYER FEATURE PATTERN — THE 4-FILE RULE
+
+When a buyer adds a feature, exactly 4 files are created (plus optional schemas.py):
+
+1. `frontend/app/(dashboard)/business/{feature}/page.tsx` → copy from `_example-page.tsx`
+2. `frontend/app/api/business/{feature}/route.ts` → copy from `_example-route.ts`, change 1 line
+3. `backend/business/{feature}/router.py` → copy from `_example_router.py`, write logic
+4. `backend/business/{feature}/models.py` → define SQLAlchemy table extending BaseModel
+
+After restart, the router is auto-registered. Dev migration runs automatically.
+No edits to `main.py`, `middleware.ts`, or any TEMPLATE file needed.
+
+Then in CONFIG zone:
+- Add 1 object to `nav.config.ts` for the sidebar link
+- Add 1 line to `roles.config.ts` for route permission
+
+---
+
+## 14. PHASE DISCIPLINE — CRITICAL
+
+The project is built in 9 sequential phases. Each phase has a strict scope.
+
+### Current Phase Behaviour
+- Build ONLY what the current phase instruction specifies.
+- Do NOT add features, pages, components, or endpoints from future phases.
+- Do NOT refactor template files unless the current phase explicitly says to.
+- Do NOT add "nice to have" improvements — stick exactly to the spec.
+- If the phase instruction is ambiguous, ask one clarifying question before proceeding.
+
+### Phase Completion Requirement
+After completing any phase, always output:
+1. A list of every file created (with path)
+2. A list of every file modified (with path)
+3. The exact terminal command to verify the exit criteria
+4. The exit criteria result (what success looks like)
+
+### Phase Order (For Reference — Do Not Skip or Reorder)
+- Phase 1: Foundation — Docker, services, proxy utility, health check
+- Phase 2: Database + Migrations — models, Alembic, seed script
+- Phase 3: Auth — signup, login, tokens, OAuth, sessions
+- Phase 4: RBAC — role guards, middleware, permissions
+- Phase 5: Frontend Shell — layouts, auth screens, dashboard shell
+- Phase 6: Built-in Dashboard Pages — home, users, analytics, settings
+- Phase 7: Business Logic Pattern — example files, auto-registration
+- Phase 8: Deployment — prod compose, Nginx, SSL, deploy script
+- Phase 9: Docs + Polish — getting-started, add-a-page, deploy guides
+
+---
+
+## 15. WHAT NEVER TO DO
+
+- Never use `localStorage` or `sessionStorage` for auth data
+- Never expose FastAPI port 8000 to the host machine
+- Never call FastAPI directly from browser-side JavaScript
+- Never add `NextAuth`, `Clerk`, `Supabase`, `Prisma`, or `tRPC` — not in scope
+- Never use `useEffect` to check auth on the client — auth is handled by middleware
+- Never add inline role checks in JSX — use `<CanAccess>`
+- Never return `{"detail": "..."}` from FastAPI endpoints — use the error shape
+- Never let a migration run in production without the `check_prod_migrations.py` blocker
+- Never auto-generate migrations in production — only in dev via `detect_unapplied.py`
+- Never skip the seed script on first run — roles and super admin must exist
+- Never store secrets in any file that gets committed to git
+- Never modify files in TEMPLATE zone unless the phase instruction explicitly requires it
+- Never build Phase N+1 features while working on Phase N
+
+---
+
+## 16. GIT RULES
+
+- `.windsurfrules` is always committed and version-controlled
+- `.env` is always in `.gitignore` — never committed
+- `.env.example` is always committed with every variable documented
+- Migration files generated by Alembic must always be committed
+- Seed scripts must be idempotent (safe to run multiple times)
+
+---
+
+## 17. VERIFICATION HABIT
+
+After every significant file creation or change, Cascade must:
+1. Show the exact terminal command to test it
+2. State what the expected output is
+3. Flag any dependencies that must be running first (e.g. Docker services)
+
+Example format:
+```
+To verify: docker compose -f infra/docker-compose.yml exec backend curl http://localhost:8000/api/health
+Expected:  {"status": "ok"}
+Requires:  All Docker services running
+```

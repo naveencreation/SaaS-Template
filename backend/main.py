@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.core.config import settings
 from auth.router import router as auth_router
+from users.router import router as users_router
 
 
 class HealthResponse(BaseModel):
@@ -28,6 +29,7 @@ app = FastAPI(
 )
 
 app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 
 @app.get("/api/health", response_model=HealthResponse)

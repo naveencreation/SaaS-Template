@@ -17,8 +17,12 @@ class LoginActivity(BaseModel):
     count: int
 
 
+class AnalyticsItem(BaseModel):
+    signup_trends: list[dict]   # serialized dicts, not SignupTrend objects
+    role_distribution: list[dict]
+    login_activity: list[dict]
+
+
 class AnalyticsResponse(BaseModel):
     success: bool
-    signup_trends: list[SignupTrend]
-    role_distribution: list[RoleDistribution]
-    login_activity: list[LoginActivity]
+    item: AnalyticsItem

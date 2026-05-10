@@ -4,7 +4,7 @@ This template is built for buyers who want to add features without understanding
 
 ## What we will build
 
-A new dashboard page called **"Projects"** at `/dashboard/projects` with full CRUD backend.
+A new dashboard page called **"Projects"** at `/projects` with full CRUD backend.
 
 ## Step 1: Backend — copy the example router
 
@@ -85,7 +85,7 @@ In `frontend/config/nav.config.ts`, uncomment the example block or add:
 ```typescript
 {
   label: "Projects",
-  href: "/dashboard/business/projects",
+  href: "/business/projects",
   icon: "FolderOpen",
   roles: ["user", "admin", "super_admin"],
 },
@@ -94,7 +94,7 @@ In `frontend/config/nav.config.ts`, uncomment the example block or add:
 In `frontend/config/roles.config.ts`, add:
 
 ```typescript
-"/dashboard/business/projects": ["user", "admin", "super_admin"],
+"/business/projects": ["user", "admin", "super_admin"],
 ```
 
 ## Step 6: Restart and test
@@ -103,7 +103,7 @@ In `frontend/config/roles.config.ts`, add:
 docker compose -f infra/docker-compose.yml restart backend frontend
 ```
 
-Open `http://localhost:3000/dashboard/business/projects`.
+Open `http://localhost:3000/business/projects`.
 
 ## Summary — what you touched
 

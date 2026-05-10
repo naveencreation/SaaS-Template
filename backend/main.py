@@ -15,7 +15,8 @@ from analytics.router import router as analytics_router
 
 
 class HealthResponse(BaseModel):
-    status: str
+    success: bool = True
+    item: dict = {"status": "ok"}
 
 
 @asynccontextmanager
@@ -140,4 +141,4 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 @app.get("/api/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint."""
-    return HealthResponse(status="ok")
+    return {"success": True, "item": {"status": "ok", "version": "v2"}}

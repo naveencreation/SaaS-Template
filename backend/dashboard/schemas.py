@@ -14,10 +14,14 @@ class RecentActivity(BaseModel):
     created_at: datetime
 
 
-class DashboardStatsResponse(BaseModel):
-    success: bool
+class DashboardStatsItem(BaseModel):
     total_users: int
     active_users: int
     new_this_week: int
-    recent_activity: list[RecentActivity]
+    recent_activity: list[Any]  # serialized dicts, not RecentActivity objects
     system_status: SystemStatus
+
+
+class DashboardStatsResponse(BaseModel):
+    success: bool
+    item: DashboardStatsItem

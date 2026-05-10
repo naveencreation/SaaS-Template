@@ -19,20 +19,20 @@ export const routePermissions: Record<string, Role[]> = {
 
   // Dashboard — all authenticated users
   "/dashboard": ["guest", "user", "admin", "super_admin"],
-  "/dashboard/profile": ["user", "admin", "super_admin"], // guests can't edit profile
-  "/dashboard/notifications": ["user", "admin", "super_admin"],
+  "/profile": ["user", "admin", "super_admin"], // guests can't edit profile
+  "/notifications": ["user", "admin", "super_admin"],
 
   // Business pages — standard users and up
-  "/dashboard/analytics": ["user", "admin", "super_admin"],
+  "/analytics": ["user", "admin", "super_admin"],
 
   // Management — admin and super_admin only
-  "/dashboard/user-management": ["admin", "super_admin"],
+  "/user-management": ["admin", "super_admin"],
 
   // System — super_admin only
-  "/dashboard/settings": ["super_admin"],
+  "/settings": ["super_admin"],
 
   // ── Buyer feature example (copy + uncomment) ──
-  // "/dashboard/business/examples": ["user", "admin", "super_admin"],
+  // "/business/examples": ["user", "admin", "super_admin"],
 };
 
 /**

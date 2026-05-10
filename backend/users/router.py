@@ -49,25 +49,28 @@ async def list_users(
     }
 
 
-@router.get("/me", response_model=schemas.UserResponse)
+@router.get("/me", response_model=schemas.UserItemResponse)
 async def get_me(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     user = await service.get_user(current_user["user_id"], db)
     return {
-        "id":          str(user.id),
-        "email":       user.email,
-        "full_name":   user.full_name,
-        "role":        user.role.name if user.role else "",
-        "is_active":   user.is_active,
-        "is_verified": user.is_verified,
-        "avatar_url":  user.avatar_url,
-        "created_at":  user.created_at,
+        "success": True,
+        "item": {
+            "id":          str(user.id),
+            "email":       user.email,
+            "full_name":   user.full_name,
+            "role":        user.role.name if user.role else "",
+            "is_active":   user.is_active,
+            "is_verified": user.is_verified,
+            "avatar_url":  user.avatar_url,
+            "created_at":  user.created_at,
+        },
     }
 
 
-@router.put("/me", response_model=schemas.UserResponse)
+@router.put("/me", response_model=schemas.UserItemResponse)
 async def update_me(
     payload: schemas.UpdateProfileRequest,
     current_user: dict = Depends(get_current_user),
@@ -77,14 +80,17 @@ async def update_me(
         current_user["user_id"], payload.full_name, payload.avatar_url, db
     )
     return {
-        "id":          str(user.id),
-        "email":       user.email,
-        "full_name":   user.full_name,
-        "role":        user.role.name if user.role else "",
-        "is_active":   user.is_active,
-        "is_verified": user.is_verified,
-        "avatar_url":  user.avatar_url,
-        "created_at":  user.created_at,
+        "success": True,
+        "item": {
+            "id":          str(user.id),
+            "email":       user.email,
+            "full_name":   user.full_name,
+            "role":        user.role.name if user.role else "",
+            "is_active":   user.is_active,
+            "is_verified": user.is_verified,
+            "avatar_url":  user.avatar_url,
+            "created_at":  user.created_at,
+        },
     }
 
 
@@ -103,7 +109,7 @@ async def change_own_password(
     return {"success": True, "message": "Password updated. Please log in again."}
 
 
-@router.get("/{user_id}", response_model=schemas.UserResponse)
+@router.get("/{user_id}", response_model=schemas.UserItemResponse)
 @require_roles(["admin", "super_admin"])
 async def get_user(
     user_id: UUID,
@@ -112,18 +118,21 @@ async def get_user(
 ):
     user = await service.get_user(str(user_id), db)
     return {
-        "id":          str(user.id),
-        "email":       user.email,
-        "full_name":   user.full_name,
-        "role":        user.role.name if user.role else "",
-        "is_active":   user.is_active,
-        "is_verified": user.is_verified,
-        "avatar_url":  user.avatar_url,
-        "created_at":  user.created_at,
+        "success": True,
+        "item": {
+            "id":          str(user.id),
+            "email":       user.email,
+            "full_name":   user.full_name,
+            "role":        user.role.name if user.role else "",
+            "is_active":   user.is_active,
+            "is_verified": user.is_verified,
+            "avatar_url":  user.avatar_url,
+            "created_at":  user.created_at,
+        },
     }
 
 
-@router.put("/{user_id}/role", response_model=schemas.UserResponse)
+@router.put("/{user_id}/role", response_model=schemas.UserItemResponse)
 @require_roles(["super_admin"])
 async def update_user_role(
     user_id: UUID,
@@ -133,18 +142,21 @@ async def update_user_role(
 ):
     user = await service.update_role(str(user_id), payload.role_id, db)
     return {
-        "id":          str(user.id),
-        "email":       user.email,
-        "full_name":   user.full_name,
-        "role":        user.role.name if user.role else "",
-        "is_active":   user.is_active,
-        "is_verified": user.is_verified,
-        "avatar_url":  user.avatar_url,
-        "created_at":  user.created_at,
+        "success": True,
+        "item": {
+            "id":          str(user.id),
+            "email":       user.email,
+            "full_name":   user.full_name,
+            "role":        user.role.name if user.role else "",
+            "is_active":   user.is_active,
+            "is_verified": user.is_verified,
+            "avatar_url":  user.avatar_url,
+            "created_at":  user.created_at,
+        },
     }
 
 
-@router.put("/{user_id}/active", response_model=schemas.UserResponse)
+@router.put("/{user_id}/active", response_model=schemas.UserItemResponse)
 @require_roles(["admin", "super_admin"])
 async def toggle_user_active(
     user_id: UUID,
@@ -154,14 +166,17 @@ async def toggle_user_active(
 ):
     user = await service.toggle_active(str(user_id), payload.is_active, db)
     return {
-        "id":          str(user.id),
-        "email":       user.email,
-        "full_name":   user.full_name,
-        "role":        user.role.name if user.role else "",
-        "is_active":   user.is_active,
-        "is_verified": user.is_verified,
-        "avatar_url":  user.avatar_url,
-        "created_at":  user.created_at,
+        "success": True,
+        "item": {
+            "id":          str(user.id),
+            "email":       user.email,
+            "full_name":   user.full_name,
+            "role":        user.role.name if user.role else "",
+            "is_active":   user.is_active,
+            "is_verified": user.is_verified,
+            "avatar_url":  user.avatar_url,
+            "created_at":  user.created_at,
+        },
     }
 
 

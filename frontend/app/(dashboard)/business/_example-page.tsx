@@ -3,10 +3,10 @@
 /**
  * EXAMPLE PAGE — Template for buyer dashboard pages.
  *
- * Copy this file to: frontend/app/(dashboard)/business/<your-feature>/page.tsx
- * Add proxy route: frontend/app/api/business/<your-feature>/route.ts
- * Add nav link: frontend/config/nav.config.ts
- * Add route permission: frontend/config/roles.config.ts
+ * 1. Copy this file to frontend/app/(dashboard)/business/my-feature/page.tsx
+ * 2. Add a proxy route at frontend/app/api/business/my-feature/route.ts
+ * 3. Add a nav link in frontend/config/nav.config.ts pointing to /business/my-feature
+ * 4. Add a route permission in frontend/config/roles.config.ts for /business/my-feature
  *
  * No edits to main.py needed — backend router auto-discovered.
  */

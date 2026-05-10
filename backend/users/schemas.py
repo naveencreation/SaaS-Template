@@ -20,6 +20,12 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserItemResponse(BaseModel):
+    """Standard single-item wrapper per §10."""
+    success: bool = True
+    item:    UserResponse
+
+
 class UserListResponse(BaseModel):
     success: bool = True
     items:   list[UserResponse]

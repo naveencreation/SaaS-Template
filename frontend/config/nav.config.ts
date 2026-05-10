@@ -37,6 +37,12 @@ export const navLinks: NavLink[] = [
     roles: ["admin", "super_admin"],
   },
   {
+    label: "Notifications",
+    href: "/dashboard/notifications",
+    icon: "Bell",
+    roles: ["user", "admin", "super_admin"],
+  },
+  {
     label: "Settings",
     href: "/dashboard/settings",
     icon: "Settings",

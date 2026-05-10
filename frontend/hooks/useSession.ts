@@ -29,12 +29,12 @@ export function useSession(): UseSessionResult {
       try {
         const res = await fetch("/api/auth/me", { credentials: "include" });
         const json = await res.json();
-        if (json.success && json.item) {
+        if (json.success && json.user) {
           setSession({
-            user_id: json.item.id,
-            email: json.item.email,
-            role: json.item.role as Role,
-            full_name: json.item.full_name,
+            user_id: json.user.id,
+            email: json.user.email,
+            role: json.user.role as Role,
+            full_name: json.user.full_name,
           });
         } else {
           setSession(null);

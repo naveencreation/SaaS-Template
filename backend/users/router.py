@@ -1,13 +1,29 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from db.session import get_db
+from db.models.role import Role
 from core.dependencies import get_current_user
 from rbac.decorators import require_roles
 from users import schemas, service
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("/roles", response_model=schemas.RoleListResponse)
+async def list_roles(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return all available roles (for dropdowns)."""
+    result = await db.execute(select(Role).order_by(Role.name))
+    roles = result.scalars().all()
+    return {
+        "success": True,
+        "items": [{"id": str(r.id), "name": r.name, "display_name": r.display_name} for r in roles],
+    }
 
 
 @router.get("", response_model=schemas.UserListResponse)

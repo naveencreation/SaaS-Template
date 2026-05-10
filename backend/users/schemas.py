@@ -34,6 +34,17 @@ class UpdateActiveRequest(BaseModel):
     is_active: bool
 
 
+class RoleListItem(BaseModel):
+    id: str
+    name: str
+    display_name: str
+
+
+class RoleListResponse(BaseModel):
+    success: bool
+    items: list[RoleListItem]
+
+
 class UpdateProfileRequest(BaseModel):
     full_name: str
     avatar_url: str | None = None

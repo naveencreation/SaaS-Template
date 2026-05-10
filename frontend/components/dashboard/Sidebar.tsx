@@ -8,6 +8,7 @@ import {
   BarChart3,
   Users,
   Settings,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 import { navLinks } from "@/config/nav.config";
@@ -19,6 +20,7 @@ const iconMap: Record<string, LucideIcon> = {
   BarChart3,
   Users,
   Settings,
+  Bell,
 };
 
 export function Sidebar() {

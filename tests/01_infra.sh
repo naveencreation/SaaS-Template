@@ -10,6 +10,17 @@ source "${SCRIPT_DIR}/helpers/assert.sh"
 COMPOSE_FILE="infra/docker-compose.yml"
 ENV_FILE=".env"
 
+# Load .env so we use the real DB credentials
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source <(grep -E '^[A-Z_]+=.*' "$ENV_FILE" | sed 's/"//g')
+  set +a
+fi
+PGUSER="${POSTGRES_USER:-postgres}"
+PGDB="${POSTGRES_DB:-postgres}"
+ADMIN_EMAIL_VAR="${SUPER_ADMIN_EMAIL:-admin@example.com}"
+
 echo "=== 01 Infrastructure Tests ==="
 
 # Discover actual container prefix (docker compose v2 uses the directory of the
@@ -87,7 +98,7 @@ else
 fi
 
 # ── Test #6: Migrations applied (check alembic_version table) ───────────────
-ALEMBIC_VER=$(docker exec "$PG_CONTAINER" psql -U postgres -d postgres -t -c "SELECT version_num FROM alembic_version LIMIT 1;" 2>/dev/null | tr -d ' \n')
+ALEMBIC_VER=$(docker exec "$PG_CONTAINER" psql -U "$PGUSER" -d "$PGDB" -t -c "SELECT version_num FROM alembic_version LIMIT 1;" 2>/dev/null | tr -d ' \n')
 if [ -n "$ALEMBIC_VER" ]; then
   pass 6 "Alembic migrations applied (revision: $ALEMBIC_VER)"
 else
@@ -96,7 +107,7 @@ else
 fi
 
 # ── Test #7: Super admin exists in DB ─────────────────────────────────────
-ADMIN_EXISTS=$(docker exec "$PG_CONTAINER" psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM users WHERE email='admin@example.com';" 2>/dev/null | tr -d ' \n' || echo "0")
+ADMIN_EXISTS=$(docker exec "$PG_CONTAINER" psql -U "$PGUSER" -d "$PGDB" -t -c "SELECT COUNT(*) FROM users WHERE email='${ADMIN_EMAIL_VAR}';" 2>/dev/null | tr -d ' \n' || echo "0")
 if [ "$ADMIN_EXISTS" -ge 1 ] 2>/dev/null; then
   pass 7 "Super admin exists in DB"
 else
@@ -105,7 +116,7 @@ else
 fi
 
 # ── Test #8: Users table has at least 1 row ──────────────────────────────────
-USER_COUNT=$(docker exec "$PG_CONTAINER" psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM users;" 2>/dev/null | tr -d ' \n' || echo "0")
+USER_COUNT=$(docker exec "$PG_CONTAINER" psql -U "$PGUSER" -d "$PGDB" -t -c "SELECT COUNT(*) FROM users;" 2>/dev/null | tr -d ' \n' || echo "0")
 if [ "$USER_COUNT" -ge 1 ] 2>/dev/null; then
   pass 8 "Users table has at least 1 row"
 else
@@ -114,7 +125,7 @@ else
 fi
 
 # ── Test #9: All 4 roles exist ──────────────────────────────────────────────
-ROLES=$(docker exec "$PG_CONTAINER" psql -U postgres -d postgres -t -c "SELECT name FROM roles;" 2>/dev/null | tr -d ' \n' || echo "")
+ROLES=$(docker exec "$PG_CONTAINER" psql -U "$PGUSER" -d "$PGDB" -t -c "SELECT name FROM roles;" 2>/dev/null | tr -d ' \n' || echo "")
 ROLES_OK=true
 for role in super_admin admin manager user; do
   if ! echo "$ROLES" | grep -q "$role"; then
@@ -129,7 +140,7 @@ else
 fi
 
 # ── Test #10: oauth_accounts table exists ───────────────────────────────────
-TABLES=$(docker exec "$PG_CONTAINER" psql -U postgres -d postgres -t -c "\\dt" 2>/dev/null || echo "")
+TABLES=$(docker exec "$PG_CONTAINER" psql -U "$PGUSER" -d "$PGDB" -t -c "\\dt" 2>/dev/null || echo "")
 if echo "$TABLES" | grep -q "oauth_accounts"; then
   pass 10 "oauth_accounts table exists"
 else

@@ -10,8 +10,17 @@ source "${SCRIPT_DIR}/helpers/assert.sh"
 source "${SCRIPT_DIR}/helpers/mailhog.sh"
 
 BASE="http://localhost:3000/api"
-ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="admin123"
+
+# Load .env for admin credentials
+ENV_FILE=".env"
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source <(grep -E '^[A-Z_]+=.*' "$ENV_FILE" | sed 's/"//g')
+  set +a
+fi
+ADMIN_EMAIL="${SUPER_ADMIN_EMAIL:-admin@myapp.com}"
+ADMIN_PASSWORD="${SUPER_ADMIN_PASSWORD:-changeme123}"
 TEST_PASSWORD="Test1234!"
 TEST_EMAIL="testuser_$(date +%s)@test.com"
 COOKIE_JAR="/tmp/test_cookies.txt"
@@ -329,7 +338,7 @@ fi
 if [ "$ADMIN_AUTH_OK" = true ]; then
   CP_BODY=$(curl -s -w "\n%{http_code}" -X PUT "$BASE/users/me/password" \
     -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
-    -d '{"current_password":"admin123","new_password":"AdminNew456!"}' 2>/dev/null)
+    -d "{\"current_password\":\"${ADMIN_PASSWORD}\",\"new_password\":\"AdminNew456!\"}" 2>/dev/null)
   CP_STATUS=$(echo "$CP_BODY" | tail -n 1)
   CP_JSON=$(echo "$CP_BODY" | sed '$d')
   if [ "$CP_STATUS" = "200" ] && echo "$CP_JSON" | jq -e '.success == true' >/dev/null 2>&1; then
@@ -338,10 +347,10 @@ if [ "$ADMIN_AUTH_OK" = true ]; then
     curl -s -X POST "$BASE/auth/login" \
       -c "$ADMIN_COOKIE_JAR" \
       -H "Content-Type: application/json" \
-      -d '{"email":"admin@example.com","password":"AdminNew456!"}' >/dev/null 2>&1 || true
+      -d "{\"email\":\"${ADMIN_EMAIL}\",\"password\":\"AdminNew456!\"}" >/dev/null 2>&1 || true
     curl -s -X PUT "$BASE/users/me/password" \
       -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
-      -d '{"current_password":"AdminNew456!","new_password":"admin123"}' >/dev/null 2>&1 || true
+      -d "{\"current_password\":\"AdminNew456!\",\"new_password\":\"${ADMIN_PASSWORD}\"}" >/dev/null 2>&1 || true
   else
     fail 30 "PUT /users/me/password succeeds" "200 + success" "$CP_STATUS + $CP_JSON"
   fi

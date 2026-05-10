@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
 
 const BASE = "http://localhost:3000";
+const ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL || "admin@myapp.com";
+const ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || "changeme123";
 
 // ── Helper: login via UI ──────────────────────────────────────────────────
 async function loginAs(page, email, password) {
@@ -61,7 +63,7 @@ test.describe("Auth Zone", () => {
   });
 
   test("#39: Login form submits and redirects to /dashboard", async ({ page }) => {
-    await loginAs(page, "admin@example.com", "admin123");
+    await loginAs(page, ADMIN_EMAIL, ADMIN_PASSWORD);
     await expect(page).toHaveURL(`${BASE}/dashboard`);
   });
 
@@ -111,7 +113,7 @@ test.describe("Auth Zone", () => {
 
 test.describe("Dashboard Zone — requires login", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAs(page, "admin@example.com", "admin123");
+    await loginAs(page, ADMIN_EMAIL, ADMIN_PASSWORD);
   });
 
   test("#46: Dashboard renders sidebar, topbar, and main content", async ({ page }) => {
@@ -124,7 +126,7 @@ test.describe("Dashboard Zone — requires login", () => {
     // Admin context — count nav links
     const adminCtx = await browser.newContext();
     const adminPage = await adminCtx.newPage();
-    await loginAs(adminPage, "admin@example.com", "admin123");
+    await loginAs(adminPage, ADMIN_EMAIL, ADMIN_PASSWORD);
     await adminPage.waitForLoadState("networkidle");
     const adminLinks = await adminPage.locator("aside a").count();
     await adminCtx.close();
@@ -203,7 +205,7 @@ test.describe("Dashboard Zone — requires login", () => {
 
 test.describe("Security", () => {
   test("#66: access_token is NOT visible in document.cookie", async ({ page }) => {
-    await loginAs(page, "admin@example.com", "admin123");
+    await loginAs(page, ADMIN_EMAIL, ADMIN_PASSWORD);
     const cookies = await page.evaluate(() => document.cookie);
     expect(cookies).not.toContain("access_token");
   });
@@ -215,7 +217,7 @@ test.describe("Security", () => {
   });
 
   test("#32: Authenticated user is redirected from /login to /dashboard", async ({ page }) => {
-    await loginAs(page, "admin@example.com", "admin123");
+    await loginAs(page, ADMIN_EMAIL, ADMIN_PASSWORD);
     await page.goto(`${BASE}/login`);
     await page.waitForURL(`${BASE}/dashboard`, { timeout: 5000 });
     await expect(page).toHaveURL(`${BASE}/dashboard`);

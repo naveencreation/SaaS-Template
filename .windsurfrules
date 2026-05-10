@@ -54,7 +54,8 @@ or any other library not specified here unless the phase instruction explicitly 
 - FastAPI is NEVER exposed to the public internet. Port 8000 is internal only.
 - ALL browser API calls go through Next.js API routes which proxy internally to FastAPI.
 - The `createProxyHandler` utility in `frontend/lib/proxy.ts` handles all proxy logic.
-- Buyers add one line per feature route: `export const { GET, POST, PUT, DELETE } = createProxyHandler('/your-feature')`
+- A **catch-all proxy route** at `frontend/app/api/[...path]/route.ts` forwards ALL `/api/*` requests to FastAPI by default.
+- Buyers add one line per feature route ONLY when custom proxy logic is needed: `export const { GET, POST, PUT, DELETE } = createProxyHandler('/your-feature')`
 - Never call FastAPI directly from browser-side code.
 
 ### 3.2 Token and Cookie Safety
@@ -114,8 +115,8 @@ saas-template/
 │   │       ├── user-management/   ← TEMPLATE
 │   │       └── business/          ← BUYER ZONE — buyer adds pages here
 │   ├── app/api/
-│   │   ├── auth/                  ← TEMPLATE
-│   │   ├── users/                 ← TEMPLATE
+│   │   ├── [...path]/             ← TEMPLATE — catch-all proxy (forwards ALL /api/* to FastAPI)
+│   │   ├── users/                 ← TEMPLATE — specific proxy when custom logic needed
 │   │   └── business/              ← BUYER ZONE — buyer adds proxy routes here
 │   ├── config/                    ← CONFIG ZONE — buyer edits these
 │   │   ├── auth.config.ts         ← toggle OAuth providers
@@ -136,10 +137,15 @@ saas-template/
 │
 ├── backend/
 │   ├── auth/                      ← TEMPLATE
+│   │   └── oauth/                 ← TEMPLATE — Google, GitHub, Microsoft adapters
 │   ├── rbac/                      ← TEMPLATE
 │   ├── users/                     ← TEMPLATE
 │   ├── mailer/                    ← TEMPLATE *(was 'email/' — renamed to avoid Python stdlib shadowing)*
+│   │   └── adapters/              ← TEMPLATE — mailhog, smtp, resend, sendgrid
 │   ├── cache/                     ← TEMPLATE *(was 'redis/' — renamed to avoid PyPI package shadowing)*
+│   │   ├── client.py              ← async Redis connection
+│   │   ├── session.py             ← session hash storage (TTL 7 days)
+│   │   └── blacklist.py           ← token jti blacklist
 │   ├── db/                        ← TEMPLATE
 │   │   ├── base.py                ← TEMPLATE — BaseModel mixin
 │   │   ├── session.py             ← TEMPLATE — get_db dependency

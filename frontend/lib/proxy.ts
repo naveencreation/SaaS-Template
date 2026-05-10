@@ -42,7 +42,15 @@ export function createProxyHandler(path: string = "") {
 
       const data = await response.json().catch(() => ({}));
 
-      return NextResponse.json(data, { status: response.status });
+      const res = NextResponse.json(data, { status: response.status });
+
+      // Forward Set-Cookie headers so httpOnly cookies reach the browser
+      const setCookie = response.headers.getSetCookie();
+      for (const cookie of setCookie) {
+        res.headers.append("Set-Cookie", cookie);
+      }
+
+      return res;
     } catch {
       return NextResponse.json(
         {

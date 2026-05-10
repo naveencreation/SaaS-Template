@@ -10,7 +10,6 @@ from fastapi import HTTPException, status
 
 from db.models.user import User
 from db.models.role import Role
-from db.models.oauth_account import OAuthAccount
 from auth.password import hash_password, verify_password
 from auth.jwt import create_access_token, create_refresh_token
 from cache.session import create_session, delete_session, get_session, update_access_token
@@ -32,10 +31,13 @@ def _error(code: str, message: str, http_status: int) -> HTTPException:
 async def signup(email: str, password: str, full_name: str, db: AsyncSession) -> dict:
     email = email.lower()
 
-    # Check duplicate
+    # Check duplicate — do NOT reveal if email exists
     result = await db.execute(select(User).where(User.email == email))
-    if result.scalar_one_or_none():
-        raise _error("EMAIL_ALREADY_REGISTERED", "This email is already registered.", 409)
+    existing_user = result.scalar_one_or_none()
+
+    if existing_user:
+        # Return same message as success to prevent email enumeration
+        return {"success": True, "message": "Check your email to verify your account."}
 
     # Fetch default role
     result = await db.execute(select(Role).where(Role.name == "user"))

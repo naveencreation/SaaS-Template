@@ -1,5 +1,8 @@
+import json
+import uuid
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, Response, Request
+from fastapi import APIRouter, Depends, Response, Request, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -38,14 +41,12 @@ async def login(payload: schemas.LoginRequest, response: Response, db: AsyncSess
 async def refresh(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
-        from fastapi import HTTPException
         raise HTTPException(status_code=401, detail={
             "success": False, "error": {"code": "NO_REFRESH_TOKEN", "message": "No refresh token.", "status": 401},
         })
     try:
         payload = decode_token(refresh_token)
     except Exception:
-        from fastapi import HTTPException
         raise HTTPException(status_code=401, detail={
             "success": False, "error": {"code": "TOKEN_INVALID", "message": "Invalid or expired refresh token.", "status": 401},
         })
@@ -114,7 +115,6 @@ def _clear_auth_cookies(response: Response) -> None:
 def _get_oauth_adapter(provider: str):
     if provider == "google":
         if not settings.GOOGLE_AUTH_ENABLED:
-            from fastapi import HTTPException
             raise HTTPException(status_code=400, detail={
                 "success": False, "error": {"code": "OAUTH_DISABLED", "message": "Google OAuth is not enabled.", "status": 400}
             })
@@ -123,7 +123,6 @@ def _get_oauth_adapter(provider: str):
 
     if provider == "github":
         if not settings.GITHUB_AUTH_ENABLED:
-            from fastapi import HTTPException
             raise HTTPException(status_code=400, detail={
                 "success": False, "error": {"code": "OAUTH_DISABLED", "message": "GitHub OAuth is not enabled.", "status": 400}
             })
@@ -132,14 +131,12 @@ def _get_oauth_adapter(provider: str):
 
     if provider == "microsoft":
         if not settings.MICROSOFT_AUTH_ENABLED:
-            from fastapi import HTTPException
             raise HTTPException(status_code=400, detail={
                 "success": False, "error": {"code": "OAUTH_DISABLED", "message": "Microsoft OAuth is not enabled.", "status": 400}
             })
         from auth.oauth.microsoft import get_auth_url, exchange_code
         return get_auth_url, exchange_code
 
-    from fastapi import HTTPException
     raise HTTPException(status_code=400, detail={
         "success": False, "error": {"code": "UNKNOWN_PROVIDER", "message": f"Unknown provider: {provider}", "status": 400}
     })
@@ -149,7 +146,6 @@ def _get_oauth_adapter(provider: str):
 async def oauth_initiate(provider: str):
     get_auth_url, _ = _get_oauth_adapter(provider)
     redirect_uri = f"{settings.APP_URL}/api/auth/oauth/{provider}/callback"
-    from fastapi.responses import RedirectResponse
     return RedirectResponse(url=get_auth_url(redirect_uri))
 
 
@@ -166,7 +162,6 @@ async def oauth_callback(
     try:
         profile = await exchange_code_fn(code, redirect_uri)
     except Exception:
-        from fastapi import HTTPException
         raise HTTPException(status_code=400, detail={
             "success": False,
             "error": {"code": "OAUTH_EXCHANGE_FAILED", "message": "Failed to exchange OAuth code.", "status": 400},
@@ -189,22 +184,19 @@ async def oauth_callback(
         user = user_result.scalar_one()
         auth = await service._create_auth_session(user, db)
         _set_auth_cookies(response, auth["access_token"], auth["refresh_token"])
-        from fastapi.responses import RedirectResponse
         return RedirectResponse(url="/dashboard")
 
     # Case B — email exists but no OAuth account → ask to link
     existing_result = await db.execute(select(User).where(User.email == email))
     existing_user = existing_result.scalar_one_or_none()
     if existing_user:
-        import json
-        link_token = str(__import__("uuid").uuid4())
+        link_token = str(uuid.uuid4())
         await redis_client.setex(
             f"oauth_link:{link_token}",
             600,
             json.dumps({"provider": provider, "provider_user_id": provider_user_id,
                         "access_token": profile["access_token"], "user_id": str(existing_user.id)}),
         )
-        from fastapi.responses import RedirectResponse
         return RedirectResponse(
             url=f"/link-account?token={link_token}&email={email}&provider={provider}"
         )
@@ -235,7 +227,6 @@ async def oauth_callback(
 
     auth = await service._create_auth_session(new_user, db)
     _set_auth_cookies(response, auth["access_token"], auth["refresh_token"])
-    from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/dashboard")
 
 
@@ -246,10 +237,8 @@ async def oauth_link_confirm(
     db: AsyncSession = Depends(get_db),
 ):
     """Called when user confirms linking an OAuth provider to their existing account."""
-    import json
     raw = await redis_client.get(f"oauth_link:{link_token}")
     if not raw:
-        from fastapi import HTTPException
         raise HTTPException(status_code=400, detail={
             "success": False,
             "error": {"code": "LINK_TOKEN_EXPIRED", "message": "Link request expired. Try again.", "status": 400},

@@ -8,8 +8,15 @@ export interface NavLink {
 }
 
 /**
- * Sidebar navigation links.
- * Routes are filtered by the user's role in the Sidebar component.
+ * NAVIGATION CONFIGURATION (CONFIG Zone)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * This file defines the sidebar links.
+ * 
+ * TO ADD A NEW LINK:
+ * 1. Add a new object to the `navLinks` array.
+ * 2. Specify the label, href, icon (Lucide name), and allowed roles.
+ * 
+ * Note: Sidebar component automatically filters links based on user role.
  */
 export const navLinks: NavLink[] = [
   {

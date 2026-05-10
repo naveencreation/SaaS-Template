@@ -1,7 +1,12 @@
 /**
- * OAuth provider configuration.
- * Reads from environment variables (NEXT_PUBLIC_* flags).
- * These are committed to git and safe to share.
+ * OAUTH CONFIGURATION (CONFIG Zone)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * This file defines which OAuth providers are available in the UI.
+ * Visibility is controlled by the NEXT_PUBLIC_* environment variables.
+ * 
+ * To enable a provider:
+ * 1. Set GOOGLE_AUTH_ENABLED=true in .env
+ * 2. Ensure Google client ID and secret are set in .env
  */
 
 export interface OAuthProvider {

@@ -1,6 +1,16 @@
 /**
- * Route permission map — which roles can access which routes.
- * Only admins/super_admins can access management routes.
+ * ROLE CONFIGURATION (CONFIG Zone)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * This file defines the route permission map.
+ * 
+ * TO ADD A NEW PROTECTED ROUTE:
+ * 1. Add the route path as a key in `routePermissions`.
+ * 2. Add the roles allowed to access it in the array.
+ * 
+ * Example:
+ *   "/business/my-feature": ["user", "admin", "super_admin"]
+ * 
+ * Note: Middleware uses this map to redirect unauthorized users to /unauthorized.
  */
 
 export type Role = "guest" | "user" | "admin" | "super_admin";

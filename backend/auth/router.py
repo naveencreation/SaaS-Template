@@ -115,7 +115,7 @@ def _clear_auth_cookies(response: Response) -> None:
 
 def _get_oauth_adapter(provider: str):
     if provider == "google":
-        if not settings.GOOGLE_AUTH_ENABLED:
+        if not settings.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED:
             raise HTTPException(status_code=400, detail={
                 "success": False, "error": {"code": "OAUTH_DISABLED", "message": "Google OAuth is not enabled.", "status": 400}
             })
@@ -123,7 +123,7 @@ def _get_oauth_adapter(provider: str):
         return get_auth_url, exchange_code
 
     if provider == "github":
-        if not settings.GITHUB_AUTH_ENABLED:
+        if not settings.NEXT_PUBLIC_GITHUB_AUTH_ENABLED:
             raise HTTPException(status_code=400, detail={
                 "success": False, "error": {"code": "OAUTH_DISABLED", "message": "GitHub OAuth is not enabled.", "status": 400}
             })
@@ -131,7 +131,7 @@ def _get_oauth_adapter(provider: str):
         return get_auth_url, exchange_code
 
     if provider == "microsoft":
-        if not settings.MICROSOFT_AUTH_ENABLED:
+        if not settings.NEXT_PUBLIC_MICROSOFT_AUTH_ENABLED:
             raise HTTPException(status_code=400, detail={
                 "success": False, "error": {"code": "OAUTH_DISABLED", "message": "Microsoft OAuth is not enabled.", "status": 400}
             })

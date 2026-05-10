@@ -1,6 +1,8 @@
 /**
- * Feature flags — toggle behaviour without touching code.
- * These are committed to git and safe to share.
+ * FEATURE FLAGS (CONFIG Zone)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * This file controls application behaviour without touching business logic.
+ * These flags are committed to git and are safe to share.
  */
 
 export const features = {

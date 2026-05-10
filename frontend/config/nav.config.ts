@@ -48,4 +48,11 @@ export const navLinks: NavLink[] = [
     icon: "Settings",
     roles: ["super_admin"],
   },
+  // ── Buyer feature example (copy + uncomment to add a page) ──
+  // {
+  //   label: "Examples",
+  //   href: "/dashboard/business/examples",
+  //   icon: "Box",
+  //   roles: ["user", "admin", "super_admin"],
+  // },
 ];

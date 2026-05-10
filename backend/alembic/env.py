@@ -1,5 +1,7 @@
 import os
 import sys
+import importlib.util
+from pathlib import Path
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
@@ -11,11 +13,33 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from app.core.config import settings
 from app.db.base import Base
 
-# Import ALL models so Alembic can see them for autogenerate
+# Import ALL template models so Alembic can see them for autogenerate
 from app.db.models.role import Role
 from app.db.models.user import User
 from app.db.models.oauth_account import OAuthAccount
 from app.db.models.audit_log import AuditLog
+
+# ── Auto-discover business/*/models.py ──────────────────────────────────
+# Any model imported here will be included in alembic autogenerate.
+def _import_business_models():
+    backend_dir = Path(__file__).parent.parent
+    business_dir = backend_dir / "business"
+    if not business_dir.exists():
+        return
+    for models_file in business_dir.glob("*/models.py"):
+        # Skip underscore-prefixed documentation folders
+        if models_file.parent.name.startswith("_"):
+            continue
+        module_name = f"business.{models_file.parent.name}.models"
+        spec = importlib.util.spec_from_file_location(module_name, models_file)
+        if spec is None or spec.loader is None:
+            continue
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        print(f"  → Alembic discovered business model: {models_file.parent.name}")
+
+
+_import_business_models()
 
 config = context.config
 

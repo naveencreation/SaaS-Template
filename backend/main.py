@@ -1,3 +1,5 @@
+import importlib.util
+from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -37,6 +39,41 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Auto-registration: discover business/*/router.py — buyer feature modules
+# ─────────────────────────────────────────────────────────────────────────
+def _register_business_routers(app: FastAPI) -> None:
+    """
+    Scan backend/business/*/router.py and auto-register each router.
+    Buyer workflow: copy backend/business/_example_router.py →
+                  backend/business/myfeature/router.py
+    No edits to main.py needed.
+    """
+    business_dir = Path(__file__).parent / "business"
+    if not business_dir.exists():
+        return
+
+    for router_file in business_dir.glob("*/router.py"):
+        # Skip the underscore-prefixed example (it's documentation only)
+        if router_file.parent.name.startswith("_"):
+            continue
+
+        module_name = f"business.{router_file.parent.name}.router"
+        spec = importlib.util.spec_from_file_location(module_name, router_file)
+        if spec is None or spec.loader is None:
+            continue
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        router = getattr(module, "router", None)
+        if router is not None:
+            app.include_router(router, prefix="/api")
+            print(f"  → Auto-registered business router: {router_file.parent.name}")
+
+
+_register_business_routers(app)
 
 
 # ─────────────────────────────────────────────────────────────────────────

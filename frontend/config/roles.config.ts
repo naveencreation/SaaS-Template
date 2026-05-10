@@ -30,6 +30,9 @@ export const routePermissions: Record<string, Role[]> = {
 
   // System — super_admin only
   "/dashboard/settings": ["super_admin"],
+
+  // ── Buyer feature example (copy + uncomment) ──
+  // "/dashboard/business/examples": ["user", "admin", "super_admin"],
 };
 
 /**

@@ -138,12 +138,12 @@ saas-template/
 │   ├── auth/                      ← TEMPLATE
 │   ├── rbac/                      ← TEMPLATE
 │   ├── users/                     ← TEMPLATE
-│   ├── email/                     ← TEMPLATE
+│   ├── mailer/                    ← TEMPLATE *(was 'email/' — renamed to avoid Python stdlib shadowing)*
+│   ├── cache/                     ← TEMPLATE *(was 'redis/' — renamed to avoid PyPI package shadowing)*
 │   ├── db/                        ← TEMPLATE
 │   │   ├── base.py                ← TEMPLATE — BaseModel mixin
 │   │   ├── session.py             ← TEMPLATE — get_db dependency
 │   │   └── models/                ← TEMPLATE — user, role, oauth, audit models
-│   ├── redis/                     ← TEMPLATE
 │   ├── business/                  ← BUYER ZONE — buyer adds features here
 │   │   ├── _example_router.py     ← TEMPLATE — example to copy
 │   │   └── {feature}/             ← BUYER creates this
@@ -355,7 +355,7 @@ And from `@/components/rbac`:
 - A business feature folder must have `router.py` with a variable named `router`.
 
 ### 9.4 Email Service
-- Always use `email_service.send(to, subject, html)` from `backend/email/service.py`.
+- Always use `email_service.send(to, subject, html)` from `backend/mailer/service.py`.
 - Never import email provider adapters directly in business logic.
 - Provider is selected automatically via `EMAIL_PROVIDER` env var.
 
@@ -363,6 +363,15 @@ And from `@/components/rbac`:
 - All env vars are read through `backend/core/config.py` (pydantic-settings).
 - Never use `os.environ.get()` directly in application code — always use `settings.VAR_NAME`.
 - If an env var is missing or invalid, `config.py` raises a clear error on startup.
+
+### 9.6 Python Package Naming — Never Shadow stdlib or PyPI
+- Before creating a new package folder in `backend/`, check if the name conflicts with:
+  - Python standard library modules (`email`, `json`, `http`, `sys`, `os`, `pathlib`, etc.)
+  - Installed PyPI packages (`redis`, `sqlalchemy`, `fastapi`, `jose`, etc.)
+- If conflict exists, rename the package. Examples:
+  - `backend/email/` → `backend/mailer/` (conflicts with stdlib `email`)
+  - `backend/redis/` → `backend/cache/` (conflicts with PyPI `redis`)
+- Always verify imports work after creating a new package.
 
 ---
 

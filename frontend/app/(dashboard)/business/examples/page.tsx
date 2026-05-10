@@ -29,11 +29,6 @@ export default function ExamplesPage() {
     "POST"
   );
 
-  const { mutate: deleteItem } = useMutation<unknown>(
-    "/api/business/examples",
-    "DELETE"
-  );
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState("0");
@@ -55,7 +50,10 @@ export default function ExamplesPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this item?")) return;
-    await deleteItem({ id });
+    await fetch(`/api/business/examples/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
     refetch();
   }
 

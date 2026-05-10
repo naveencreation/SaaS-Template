@@ -21,6 +21,7 @@ pip-delete-this-directory.txt
 
 # Environment
 .env
+.env.prod
 .env.local
 .env.*.local
 !.env.example

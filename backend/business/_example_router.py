@@ -13,7 +13,7 @@ from app.db.base import BaseModel as DBBaseModel  # SQLAlchemy BaseModel
 
 # ── Router ────────────────────────────────────────────────────────────────
 router = APIRouter(
-    prefix="/my-feature",   # becomes /api/my-feature in main.py
+    prefix="/business/my-feature",   # becomes /api/business/my-feature via auto-registration
     tags=["My Feature"],
 )
 

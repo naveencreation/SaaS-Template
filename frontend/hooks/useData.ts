@@ -26,8 +26,12 @@ export function useData<T>(url: string): UseDataResult<T> {
       const json = await res.json();
       if (!json.success) {
         setError(json.error?.message || "Request failed.");
+      } else if (json.item !== undefined) {
+        setData(json.item as T);
+      } else if (json.items !== undefined) {
+        setData({ items: json.items, total: json.total } as T);
       } else {
-        setData(json.item ?? json.items ?? json);
+        setData(json as T);
       }
     } catch {
       setError("Network error. Please try again.");

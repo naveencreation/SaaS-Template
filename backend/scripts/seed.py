@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 SYSTEM_ROLES = [
     {"name": "super_admin", "display_name": "Super Admin"},
     {"name": "admin",       "display_name": "Admin"},
+    {"name": "manager",     "display_name": "Manager"},
     {"name": "user",        "display_name": "User"},
-    {"name": "guest",       "display_name": "Guest"},
 ]
 
 

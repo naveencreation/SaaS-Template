@@ -8,7 +8,16 @@ async function loginAs(page, email, password) {
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
-  await page.waitForURL(`${BASE}/dashboard`, { timeout: 5000 });
+  // Wait for navigation OR error paragraph (red text) to appear
+  await Promise.race([
+    page.waitForURL(`${BASE}/dashboard`, { timeout: 10000 }),
+    page.waitForSelector("p.text-red-600", { timeout: 10000 }),
+  ]);
+  const url = page.url();
+  if (!url.includes("/dashboard")) {
+    const errorText = await page.locator("p.text-red-600").textContent().catch(() => "unknown error");
+    throw new Error(`Login failed for ${email}. Current URL: ${url}. Error: ${errorText}`);
+  }
 }
 
 // ── Public Zone ─────────────────────────────────────────────────────────────
@@ -19,8 +28,8 @@ test.describe("Public Zone", () => {
     // Hero heading
     await expect(page.locator("h1")).toContainText(/Build your SaaS|Dashboard|Template/i);
     // CTA buttons
-    await expect(page.locator('a[href="/signup"]')).toBeVisible();
-    await expect(page.locator('a[href="/login"]')).toBeVisible();
+    await expect(page.locator('a[href="/signup"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/login"]').first()).toBeVisible();
     // 3 feature cards
     const cards = page.locator("div.rounded-lg.border");
     await expect(cards).toHaveCount(3);

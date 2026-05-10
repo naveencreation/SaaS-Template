@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
 from app.core.config import settings
+from auth.router import router as auth_router
 
 
 class HealthResponse(BaseModel):
@@ -25,6 +26,8 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
+
+app.include_router(auth_router, prefix="/api")
 
 
 @app.get("/api/health", response_model=HealthResponse)

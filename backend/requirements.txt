@@ -1,10 +1,16 @@
+# Cache-bust: 1
 fastapi
 uvicorn[standard]
 python-dotenv
 pydantic-settings
+email-validator
 sqlalchemy[asyncio]
 asyncpg
 psycopg2-binary
 alembic
 bcrypt==4.0.1
+passlib[bcrypt]
 python-jose[cryptography]
+redis[asyncio]
+aiosmtplib
+httpx

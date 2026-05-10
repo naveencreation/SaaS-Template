@@ -10,6 +10,7 @@ from app.db.models.user import User
 from app.db.models.oauth_account import OAuthAccount  # noqa: F401  (needed for SQLAlchemy mapper resolution)
 from app.db.models.audit_log import AuditLog          # noqa: F401  (needed for SQLAlchemy mapper resolution)
 from app.core.config import settings
+from auth.password import hash_password
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,12 +21,6 @@ SYSTEM_ROLES = [
     {"name": "user",        "display_name": "User"},
     {"name": "guest",       "display_name": "Guest"},
 ]
-
-
-def hash_password(password: str) -> str:
-    """Temporary hash function for seed. Phase 3 will centralise this in auth/service.py."""
-    import bcrypt
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
 
 def seed():

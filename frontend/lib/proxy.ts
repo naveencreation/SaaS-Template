@@ -8,18 +8,25 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * @param path - The backend API path to proxy to (e.g. '/health', '/users')
  */
-export function createProxyHandler(path: string) {
+export function createProxyHandler(path: string = "") {
   const handler = async (req: NextRequest) => {
-    const backendUrl = `${process.env.BACKEND_URL}${path}${req.nextUrl.search}`;
+    const proxyPath = path || req.nextUrl.pathname.replace(/^\/api/, "");
+    const backendUrl = `${process.env.BACKEND_URL}${proxyPath}${req.nextUrl.search}`;
 
     const headers: HeadersInit = {
-      "Content-Type": "application/json",
+      "Content-Type": req.headers.get("Content-Type") || "application/json",
     };
 
-    // Forward Authorization header if present (from session cookie)
+    // Forward Authorization header if present
     const authHeader = req.headers.get("Authorization");
     if (authHeader) {
       headers["Authorization"] = authHeader;
+    }
+
+    // Forward Cookie header for session cookies
+    const cookieHeader = req.headers.get("Cookie");
+    if (cookieHeader) {
+      headers["Cookie"] = cookieHeader;
     }
 
     const body = req.method !== "GET" && req.method !== "HEAD"

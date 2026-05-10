@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     SMTP_USER:        str = ""
     SMTP_PASSWORD:    str = ""
 
+    # MailHog (dev)
+    MAILHOG_HOST: str = "mailhog"
+    MAILHOG_PORT: int = 1025
+
     # Super Admin
     SUPER_ADMIN_EMAIL:    str
     SUPER_ADMIN_PASSWORD: str

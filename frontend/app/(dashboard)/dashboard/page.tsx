@@ -1,6 +1,7 @@
 "use client";
 
 import { useData } from "@/hooks/useData";
+import { useSession } from "@/hooks/useSession";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { PageError } from "@/components/ui/PageError";
@@ -25,10 +26,31 @@ const statCards = [
 ];
 
 export default function DashboardHome() {
-  const { data: stats, loading, error, refetch } = useData<Stats>("/api/dashboard/stats");
+  const { session } = useSession();
+  const isAdmin = session?.user?.role === "admin" || session?.user?.role === "super_admin";
+
+  const { data: stats, loading, error, refetch } = useData<Stats>(
+    isAdmin ? "/api/dashboard/stats" : null
+  );
 
   if (loading) return <PageLayout title="Dashboard"><PageSkeleton /></PageLayout>;
   if (error) return <PageLayout title="Dashboard"><PageError message={error} onRetry={refetch} /></PageLayout>;
+
+  if (!isAdmin) {
+    return (
+      <PageLayout title="Dashboard">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900">
+            Welcome back, {session?.user?.full_name}!
+          </h2>
+          <p className="mt-2 text-gray-600">
+            Select an option from the sidebar to get started.
+          </p>
+        </div>
+      </PageLayout>
+    );
+  }
+
   if (!stats) return null;
 
   return (
@@ -38,7 +60,7 @@ export default function DashboardHome() {
         {statCards.map(({ key, label, icon: Icon }) => (
           <div
             key={key}
-            className="rounded-lg border border-gray-200 bg-white p-6"
+            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -57,7 +79,7 @@ export default function DashboardHome() {
 
       {/* System status */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
             <Server className="h-5 w-5" />
             System Status
@@ -91,7 +113,7 @@ export default function DashboardHome() {
         </div>
 
         {/* Recent activity */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
             <Activity className="h-5 w-5" />
             Recent Activity
@@ -120,3 +142,4 @@ export default function DashboardHome() {
     </PageLayout>
   );
 }
+

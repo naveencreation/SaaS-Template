@@ -13,12 +13,16 @@ interface UseDataResult<T> {
  * GET data hook for fetching from the Next.js API proxy.
  * Returns data, loading state, error message, and a refetch function.
  */
-export function useData<T>(url: string): UseDataResult<T> {
+export function useData<T>(url: string | null): UseDataResult<T> {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(url !== null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (!url) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

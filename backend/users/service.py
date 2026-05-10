@@ -4,7 +4,7 @@ Role changes force immediate logout by deleting Redis session.
 """
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 from db.models.user import User
 from db.models.role import Role

@@ -10,7 +10,7 @@ from users import schemas, service
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/", response_model=schemas.UserListResponse)
+@router.get("", response_model=schemas.UserListResponse)
 @require_roles(["admin", "super_admin"])
 async def list_users(
     current_user: dict = Depends(get_current_user),

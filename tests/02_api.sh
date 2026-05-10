@@ -235,7 +235,7 @@ if [ "$ADMIN_AUTH_OK" = true ]; then
   TEST_USER_ID=$(curl -s -b "$ADMIN_COOKIE_JAR" "$BASE/users" 2>/dev/null | jq -r ".items[] | select(.email == \"$TEST_EMAIL\") | .id // empty")
   if [ -n "$TEST_USER_ID" ]; then
     SINGLE_BODY=$(curl -s -b "$ADMIN_COOKIE_JAR" "$BASE/users/$TEST_USER_ID" 2>/dev/null)
-    SINGLE_EMAIL=$(echo "$SINGLE_BODY" | jq -r '.user.email // empty')
+    SINGLE_EMAIL=$(echo "$SINGLE_BODY" | jq -r '.email // empty')
     if [ "$SINGLE_EMAIL" = "$TEST_EMAIL" ]; then
       pass 25 "GET /users/{id} returns correct user"
     else
@@ -253,15 +253,16 @@ if [ "$ADMIN_AUTH_OK" = true ] && [ -n "$TEST_USER_ID" ]; then
   # Get manager role id
   TEST_ROLE_ID=$(docker exec infra-postgres-1 psql -U postgres -d postgres -t -c "SELECT id FROM roles WHERE name='manager';" 2>/dev/null | tr -d ' \n')
   if [ -n "$TEST_ROLE_ID" ]; then
-    ROLE_BODY=$(curl -s -w "\n%{http_code}" -X PATCH "$BASE/users/$TEST_USER_ID/role" \
+    ROLE_BODY=$(curl -s -w "\n%{http_code}" -X PUT "$BASE/users/$TEST_USER_ID/role" \
       -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
       -d "{\"role_id\":\"$TEST_ROLE_ID\"}" 2>/dev/null)
     ROLE_STATUS=$(echo "$ROLE_BODY" | tail -n 1)
     ROLE_JSON=$(echo "$ROLE_BODY" | sed '$d')
-    if [ "$ROLE_STATUS" = "200" ] && echo "$ROLE_JSON" | jq -e '.success == true' >/dev/null 2>&1; then
-      pass 26 "PATCH /users/{id}/role to manager succeeds"
+    ROLE_NAME=$(echo "$ROLE_JSON" | jq -r '.role // empty')
+    if [ "$ROLE_STATUS" = "200" ] && [ "$ROLE_NAME" = "manager" ]; then
+      pass 26 "PUT /users/{id}/role to manager succeeds"
     else
-      fail 26 "PATCH /users/{id}/role to manager succeeds" "200 + success" "$ROLE_STATUS + $ROLE_JSON"
+      fail 26 "PUT /users/{id}/role to manager succeeds" "200 + role=manager" "$ROLE_STATUS + role=$ROLE_NAME"
     fi
   else
     fail 26 "PATCH /users/{id}/role to manager succeeds" "manager role_id found" "not found"
@@ -272,20 +273,21 @@ fi
 
 # Test #27: Deactivate user, then login should fail
 if [ "$ADMIN_AUTH_OK" = true ] && [ -n "$TEST_USER_ID" ]; then
-  ACTIVE_BODY=$(curl -s -w "\n%{http_code}" -X PATCH "$BASE/users/$TEST_USER_ID/active" \
+  ACTIVE_BODY=$(curl -s -w "\n%{http_code}" -X PUT "$BASE/users/$TEST_USER_ID/active" \
     -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
     -d '{"is_active":false}' 2>/dev/null)
   ACTIVE_STATUS=$(echo "$ACTIVE_BODY" | tail -n 1)
   ACTIVE_JSON=$(echo "$ACTIVE_BODY" | sed '$d')
+  ACTIVE_FLAG=$(echo "$ACTIVE_JSON" | jq -r '.is_active // empty')
 
   DEACTIVATED_LOGIN=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/auth/login" \
     -H "Content-Type: application/json" \
     -d "{\"email\":\"$TEST_EMAIL\",\"password\":\"NewPass456!\"}" 2>/dev/null)
 
-  if [ "$ACTIVE_STATUS" = "200" ] && echo "$ACTIVE_JSON" | jq -e '.success == true' >/dev/null 2>&1 && [ "$DEACTIVATED_LOGIN" = "401" ]; then
+  if [ "$ACTIVE_STATUS" = "200" ] && [ "$ACTIVE_FLAG" = "false" ] && [ "$DEACTIVATED_LOGIN" = "401" ]; then
     pass 27 "Deactivate user prevents login"
   else
-    fail 27 "Deactivate user prevents login" "200 + 401" "$ACTIVE_STATUS + $DEACTIVATED_LOGIN"
+    fail 27 "Deactivate user prevents login" "200 + is_active=false + 401" "$ACTIVE_STATUS + $ACTIVE_FLAG + $DEACTIVATED_LOGIN"
   fi
 else
   skip 27 "Deactivate user"
@@ -308,44 +310,43 @@ fi
 
 # Test #29: Update self profile
 if [ "$ADMIN_AUTH_OK" = true ]; then
-  PROF_BODY=$(curl -s -w "\n%{http_code}" -X PATCH "$BASE/users/me" \
+  PROF_BODY=$(curl -s -w "\n%{http_code}" -X PUT "$BASE/users/me" \
     -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
     -d '{"full_name":"Updated Admin"}' 2>/dev/null)
   PROF_STATUS=$(echo "$PROF_BODY" | tail -n 1)
   PROF_JSON=$(echo "$PROF_BODY" | sed '$d')
-  PROF_NAME=$(echo "$PROF_JSON" | jq -r '.user.full_name // empty')
+  PROF_NAME=$(echo "$PROF_JSON" | jq -r '.full_name // empty')
   if [ "$PROF_STATUS" = "200" ] && [ "$PROF_NAME" = "Updated Admin" ]; then
-    pass 29 "PATCH /users/me updates full_name"
+    pass 29 "PUT /users/me updates full_name"
   else
-    fail 29 "PATCH /users/me updates full_name" "Updated Admin" "$PROF_NAME"
+    fail 29 "PUT /users/me updates full_name" "Updated Admin" "$PROF_NAME"
   fi
 else
-  skip 29 "PATCH /users/me"
+  skip 29 "PUT /users/me"
 fi
 
 # Test #30: Change own password
 if [ "$ADMIN_AUTH_OK" = true ]; then
-  CP_BODY=$(curl -s -w "\n%{http_code}" -X POST "$BASE/users/me/change-password" \
+  CP_BODY=$(curl -s -w "\n%{http_code}" -X PUT "$BASE/users/me/password" \
     -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
     -d '{"current_password":"admin123","new_password":"AdminNew456!"}' 2>/dev/null)
   CP_STATUS=$(echo "$CP_BODY" | tail -n 1)
   CP_JSON=$(echo "$CP_BODY" | sed '$d')
   if [ "$CP_STATUS" = "200" ] && echo "$CP_JSON" | jq -e '.success == true' >/dev/null 2>&1; then
-    pass 30 "POST /users/me/change-password succeeds"
-    # Restore admin password for cleanup
+    pass 30 "PUT /users/me/password succeeds"
+    # Restore admin password for cleanup (login + change back)
     curl -s -X POST "$BASE/auth/login" \
       -c "$ADMIN_COOKIE_JAR" \
       -H "Content-Type: application/json" \
       -d '{"email":"admin@example.com","password":"AdminNew456!"}' >/dev/null 2>&1 || true
-    # Change it back
-    curl -s -X POST "$BASE/users/me/change-password" \
+    curl -s -X PUT "$BASE/users/me/password" \
       -b "$ADMIN_COOKIE_JAR" -H "Content-Type: application/json" \
       -d '{"current_password":"AdminNew456!","new_password":"admin123"}' >/dev/null 2>&1 || true
   else
-    fail 30 "POST /users/me/change-password succeeds" "200 + success" "$CP_STATUS + $CP_JSON"
+    fail 30 "PUT /users/me/password succeeds" "200 + success" "$CP_STATUS + $CP_JSON"
   fi
 else
-  skip 30 "POST /users/me/change-password"
+  skip 30 "PUT /users/me/password"
 fi
 
 # ── Error Shape Validation ───────────────────────────────────────────────────

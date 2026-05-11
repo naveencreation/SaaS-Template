@@ -30,10 +30,10 @@ export function Input({
       {label && (
         <label
           htmlFor={name}
-          className="mb-1 block text-sm font-medium text-gray-700"
+          className="mb-1 block text-sm font-medium text-neutral-700"
         >
           {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
+          {required && <span className="ml-1 text-error-solid">*</span>}
         </label>
       )}
       <input
@@ -45,13 +45,13 @@ export function Input({
         disabled={disabled}
         onChange={onChange}
         onBlur={onBlur}
-        className={`w-full rounded-md border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+        className={`w-full rounded-md border px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
           error
-            ? "border-red-500 focus:border-red-500"
-            : "border-gray-300 focus:border-primary-500"
+            ? "border-error-solid focus:border-error-solid"
+            : "border-neutral-300 focus:border-primary-500"
         }`}
       />
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-error-text">{error}</p>}
     </div>
   );
 }

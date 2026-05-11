@@ -39,11 +39,11 @@ export default function DashboardHome() {
   if (!isAdmin) {
     return (
       <PageLayout title="Dashboard">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-neutral-900">
             Welcome back, {session?.user?.full_name}!
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-neutral-600">
             Select an option from the sidebar to get started.
           </p>
         </div>
@@ -60,12 +60,12 @@ export default function DashboardHome() {
         {statCards.map(({ key, label, icon: Icon }) => (
           <div
             key={key}
-            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            className="rounded-lg border border-neutral-200 bg-surface-card p-6 shadow-sm"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{label}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-neutral-600">{label}</p>
+                <p className="mt-2 text-3xl font-bold text-neutral-900">
                   {stats[key]}
                 </p>
               </div>
@@ -79,31 +79,31 @@ export default function DashboardHome() {
 
       {/* System status */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <Server className="h-5 w-5" />
             System Status
           </h3>
           <div className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Database</span>
+              <span className="text-sm text-neutral-600">Database</span>
               <span
                 className={`rounded-full px-2 py-1 text-xs font-medium ${
                   stats.system_status.db === "ok"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                    ? "bg-success-bg text-success-text"
+                    : "bg-error-bg text-error-text"
                 }`}
               >
                 {stats.system_status.db === "ok" ? "Healthy" : "Error"}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Redis</span>
+              <span className="text-sm text-neutral-600">Redis</span>
               <span
                 className={`rounded-full px-2 py-1 text-xs font-medium ${
                   stats.system_status.redis === "ok"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                    ? "bg-success-bg text-success-text"
+                    : "bg-error-bg text-error-text"
                 }`}
               >
                 {stats.system_status.redis === "ok" ? "Healthy" : "Error"}
@@ -113,23 +113,23 @@ export default function DashboardHome() {
         </div>
 
         {/* Recent activity */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <Activity className="h-5 w-5" />
             Recent Activity
           </h3>
           <div className="mt-4 space-y-3">
             {stats.recent_activity.length === 0 ? (
-              <p className="text-sm text-gray-500">No recent activity.</p>
+              <p className="text-sm text-neutral-500">No recent activity.</p>
             ) : (
               stats.recent_activity.map((act, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="mt-1 h-2 w-2 rounded-full bg-primary-500" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-neutral-900">
                       {act.action.replace(/_/g, " ")}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-neutral-500">
                       {act.user_email || "System"} · {new Date(act.created_at).toLocaleString()}
                     </p>
                   </div>

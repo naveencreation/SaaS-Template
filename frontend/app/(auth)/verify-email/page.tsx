@@ -55,14 +55,14 @@ export default function VerifyEmailPage() {
     <Card>
       <h2
         className={`text-2xl font-bold ${
-          status === "success" ? "text-green-700" : "text-red-700"
+          status === "success" ? "text-success-text" : "text-error-text"
         }`}
       >
         {status === "success" ? "Email verified!" : "Verification failed"}
       </h2>
-      <p className="mt-2 text-gray-600">{message}</p>
+      <p className="mt-2 text-neutral-600">{message}</p>
       {status === "success" && (
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Redirecting you to the dashboard...
         </p>
       )}

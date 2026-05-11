@@ -66,8 +66,8 @@ export default function ExamplesPage() {
     <PageLayout title="Examples">
       <div className="space-y-6">
         {/* Create form */}
-        <form onSubmit={handleCreate} className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
-          <h3 className="font-semibold text-gray-900">Create Example Item</h3>
+        <form onSubmit={handleCreate} className="rounded-lg border border-neutral-200 bg-surface-card p-4 space-y-3">
+          <h3 className="font-semibold text-neutral-900">Create Example Item</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Input
               label="Name"
@@ -97,29 +97,29 @@ export default function ExamplesPage() {
         </form>
 
         {/* List */}
-        <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-neutral-50">
               <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-700">Name</th>
-                <th className="px-4 py-2 text-left font-medium text-gray-700">Description</th>
-                <th className="px-4 py-2 text-left font-medium text-gray-700">Quantity</th>
-                <th className="px-4 py-2 text-right font-medium text-gray-700">Actions</th>
+                <th className="px-4 py-2 text-left font-medium text-neutral-700">Name</th>
+                <th className="px-4 py-2 text-left font-medium text-neutral-700">Description</th>
+                <th className="px-4 py-2 text-left font-medium text-neutral-700">Quantity</th>
+                <th className="px-4 py-2 text-right font-medium text-neutral-700">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-neutral-100">
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
+                  <td colSpan={4} className="px-4 py-6 text-center text-neutral-500">
                     No items yet. Create one above.
                   </td>
                 </tr>
               )}
               {items.map((item) => (
                 <tr key={item.id}>
-                  <td className="px-4 py-2 text-gray-900">{item.name}</td>
-                  <td className="px-4 py-2 text-gray-600">{item.description || "—"}</td>
-                  <td className="px-4 py-2 text-gray-900">{item.quantity}</td>
+                  <td className="px-4 py-2 text-neutral-900">{item.name}</td>
+                  <td className="px-4 py-2 text-neutral-600">{item.description || "—"}</td>
+                  <td className="px-4 py-2 text-neutral-900">{item.quantity}</td>
                   <td className="px-4 py-2 text-right">
                     <Button
                       variant="ghost"

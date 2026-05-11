@@ -26,7 +26,7 @@ export function MobileMenu() {
       </Button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-16 z-50 border-b border-gray-200 bg-white shadow-lg">
+        <div className="absolute left-0 right-0 top-16 z-50 border-b border-neutral-200 bg-surface-card shadow-lg">
           <nav className="space-y-1 px-3 py-4">
             {visibleLinks.map((link) => {
               const active = pathname === link.href;
@@ -38,7 +38,7 @@ export function MobileMenu() {
                   className={`block rounded-md px-3 py-2 text-sm font-medium ${
                     active
                       ? "bg-primary-50 text-primary-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      : "text-neutral-700 hover:bg-neutral-100"
                   }`}
                 >
                   {link.label}

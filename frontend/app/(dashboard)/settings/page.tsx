@@ -16,7 +16,7 @@ export default function SettingsPage() {
         <Card>
           <div className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Application Info</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Application Info</h2>
           </div>
           <div className="mt-4 space-y-3">
             <Input label="App Name" name="app_name" value="SaaS Template" disabled />
@@ -28,25 +28,25 @@ export default function SettingsPage() {
         <Card>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Security Settings</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Security Settings</h2>
           </div>
           <div className="mt-4 space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Email Verification Required</span>
-              <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+              <span className="text-neutral-600">Email Verification Required</span>
+              <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-medium text-success-text">
                 {features.emailVerification ? "Enabled" : "Disabled"}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Registration Open</span>
-              <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+              <span className="text-neutral-600">Registration Open</span>
+              <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-medium text-success-text">
                 {features.registrationOpen ? "Open" : "Closed"}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Maintenance Mode</span>
+              <span className="text-neutral-600">Maintenance Mode</span>
               <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                features.maintenanceMode ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                features.maintenanceMode ? "bg-error-bg text-error-text" : "bg-success-bg text-success-text"
               }`}>
                 {features.maintenanceMode ? "Active" : "Off"}
               </span>
@@ -57,9 +57,9 @@ export default function SettingsPage() {
         <Card>
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Database</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Database</h2>
           </div>
-          <div className="mt-4 text-sm text-gray-600">
+          <div className="mt-4 text-sm text-neutral-600">
             <p>PostgreSQL 15 with async SQLAlchemy</p>
             <p className="mt-1">Redis 7 for session &amp; cache</p>
           </div>
@@ -68,9 +68,9 @@ export default function SettingsPage() {
         <Card>
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Email Providers</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Email Providers</h2>
           </div>
-          <div className="mt-4 text-sm text-gray-600">
+          <div className="mt-4 text-sm text-neutral-600">
             <p>MailHog (dev), Resend, SendGrid, SMTP supported.</p>
             <p className="mt-1">Configured via environment variables.</p>
           </div>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
       </div>
 
       {session && (
-        <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-500">
+        <div className="mt-6 rounded-lg border border-neutral-200 bg-surface-background p-4 text-xs text-neutral-500">
           Logged in as <strong>{session.email}</strong> ({session.role})
         </div>
       )}

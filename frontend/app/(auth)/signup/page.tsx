@@ -25,12 +25,12 @@ export default function SignupPage() {
   if (submitted) {
     return (
       <Card>
-        <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
-        <p className="mt-2 text-gray-600">
+        <h2 className="text-2xl font-bold text-neutral-900">Check your email</h2>
+        <p className="mt-2 text-neutral-600">
           We sent a verification link to <strong>{email}</strong>. Click it to
           activate your account.
         </p>
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-4 text-sm text-neutral-500">
           Check your spam folder if you don&apos;t see it within a few minutes.
         </p>
       </Card>
@@ -39,8 +39,8 @@ export default function SignupPage() {
 
   return (
     <Card>
-      <h2 className="text-2xl font-bold text-gray-900">Create an account</h2>
-      <p className="mt-1 text-sm text-gray-600">
+      <h2 className="text-2xl font-bold text-neutral-900">Create an account</h2>
+      <p className="mt-1 text-sm text-neutral-600">
         Start your free trial today.
       </p>
 
@@ -71,13 +71,13 @@ export default function SignupPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-error-text">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Creating account..." : "Sign up"}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-neutral-600">
         Already have an account?{" "}
         <Link href="/login" className="text-primary-600 hover:underline">
           Log in

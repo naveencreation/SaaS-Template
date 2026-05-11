@@ -84,7 +84,7 @@ export default function UserManagementPage() {
                 <select
                   value={roles.find((r) => r.name === row.role)?.id || ""}
                   onChange={(e) => updateRole(row.id, e.target.value)}
-                  className="rounded border border-gray-300 px-2 py-1 text-sm"
+                  className="rounded border border-neutral-300 px-2 py-1 text-sm"
                 >
                   {roles.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -102,8 +102,8 @@ export default function UserManagementPage() {
               <span
                 className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                   row.is_active
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                    ? "bg-success-bg text-success-text"
+                    : "bg-error-bg text-error-text"
                 }`}
               >
                 {row.is_active ? "Active" : "Inactive"}
@@ -122,9 +122,9 @@ export default function UserManagementPage() {
                 >
                   <span title={row.is_active ? "Deactivate" : "Activate"}>
                     {row.is_active ? (
-                      <ShieldX className="h-4 w-4 text-red-500" />
+                      <ShieldX className="h-4 w-4 text-error-solid" />
                     ) : (
-                      <ShieldCheck className="h-4 w-4 text-green-500" />
+                      <ShieldCheck className="h-4 w-4 text-success-solid" />
                     )}
                   </span>
                 </Button>
@@ -135,7 +135,7 @@ export default function UserManagementPage() {
                     onClick={() => deleteUser(row.id)}
                   >
                     <span title="Delete">
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4 text-error-solid" />
                     </span>
                   </Button>
                 </CanAccess>

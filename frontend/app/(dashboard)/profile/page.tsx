@@ -80,7 +80,7 @@ export default function ProfilePage() {
         <Card>
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Account Info</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Account Info</h2>
           </div>
           <div className="mt-4 space-y-4">
             <Input label="Email" name="email" value={profile.email} disabled />
@@ -90,18 +90,18 @@ export default function ProfilePage() {
               value={editedName || profile.full_name}
               onChange={(e) => setEditedName(e.target.value)}
             />
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium capitalize">
+            <div className="flex items-center gap-2 text-sm text-neutral-600">
+              <span className="rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium capitalize">
                 {profile.role.replace("_", " ")}
               </span>
               {profile.is_verified && (
-                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-medium text-success-text">
                   Verified
                 </span>
               )}
             </div>
             {saveMsg && (
-              <p className={`text-sm ${saveMsg.includes("updated") ? "text-green-600" : "text-red-600"}`}>
+              <p className={`text-sm ${saveMsg.includes("updated") ? "text-success-text" : "text-error-text"}`}>
                 {saveMsg}
               </p>
             )}
@@ -115,7 +115,7 @@ export default function ProfilePage() {
         <Card>
           <div className="flex items-center gap-2">
             <Lock className="h-5 w-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Change Password</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Change Password</h2>
           </div>
           <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
             <Input
@@ -142,8 +142,8 @@ export default function ProfilePage() {
               onChange={(e) => setConfirmPw(e.target.value)}
               required
             />
-            {pwError && <p className="text-sm text-red-600">{pwError}</p>}
-            {pwSuccess && <p className="text-sm text-green-600">{pwSuccess}</p>}
+            {pwError && <p className="text-sm text-error-text">{pwError}</p>}
+            {pwSuccess && <p className="text-sm text-success-text">{pwSuccess}</p>}
             <Button type="submit" className="w-full">Change Password</Button>
           </form>
         </Card>

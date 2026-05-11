@@ -22,7 +22,7 @@ export default function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{ __html: `:root {\n${cssString}\n}` }} />
       </head>
-      <body className="min-h-screen bg-gray-50 antialiased">{children}</body>
+      <body className="min-h-screen bg-surface-background antialiased">{children}</body>
     </html>
   );
 }

@@ -41,11 +41,11 @@ export default function ResetPasswordPage() {
   if (submitted) {
     return (
       <Card>
-        <h2 className="text-2xl font-bold text-green-700">Password updated</h2>
-        <p className="mt-2 text-gray-600">
+        <h2 className="text-2xl font-bold text-success-text">Password updated</h2>
+        <p className="mt-2 text-neutral-600">
           Your password has been reset successfully.
         </p>
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-4 text-sm text-neutral-500">
           <Link href="/login" className="text-primary-600 hover:underline">
             Log in with your new password
           </Link>
@@ -56,8 +56,8 @@ export default function ResetPasswordPage() {
 
   return (
     <Card>
-      <h2 className="text-2xl font-bold text-gray-900">Set new password</h2>
-      <p className="mt-1 text-sm text-gray-600">
+      <h2 className="text-2xl font-bold text-neutral-900">Set new password</h2>
+      <p className="mt-1 text-sm text-neutral-600">
         Enter your new password below.
       </p>
 
@@ -80,8 +80,8 @@ export default function ResetPasswordPage() {
           onChange={(e) => setConfirm(e.target.value)}
           required
         />
-        {matchError && <p className="text-sm text-red-600">{matchError}</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {matchError && <p className="text-sm text-error-text">{matchError}</p>}
+        {error && <p className="text-sm text-error-text">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Updating..." : "Reset password"}
         </Button>

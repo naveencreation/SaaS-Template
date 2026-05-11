@@ -60,12 +60,12 @@ export default function MyFeaturePage() {
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {data?.items.length === 0 ? (
-          <p className="text-gray-500">No items found. Click "Add Item" to start.</p>
+          <p className="text-neutral-500">No items found. Click "Add Item" to start.</p>
         ) : (
           data?.items.map((item) => (
             <Card key={item.id} className="p-4">
               <h3 className="font-bold">{item.name}</h3>
-              <p className="text-sm text-gray-600">{item.description}</p>
+              <p className="text-sm text-neutral-600">{item.description}</p>
             </Card>
           ))
         )}

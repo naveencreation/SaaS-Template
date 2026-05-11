@@ -30,21 +30,21 @@ export default function AnalyticsPage() {
       guest: "bg-green-500",
       user: "bg-yellow-500",
     };
-    return map[role] || "bg-gray-500";
+    return map[role] || "bg-neutral-500";
   };
 
   return (
     <PageLayout title="Analytics">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Signup Trends */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card p-6">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <TrendingUp className="h-5 w-5 text-primary-600" />
             Signup Trends (30 days)
           </h3>
           <div className="mt-4 h-48 flex items-end gap-1">
             {data.signup_trends.length === 0 ? (
-              <p className="text-sm text-gray-500">No data yet.</p>
+              <p className="text-sm text-neutral-500">No data yet.</p>
             ) : (
               data.signup_trends.map((day) => (
                 <div key={day.date} className="flex flex-1 flex-col items-center gap-1">
@@ -55,7 +55,7 @@ export default function AnalyticsPage() {
                       minHeight: day.count > 0 ? "4px" : "0",
                     }}
                   />
-                  <span className="text-[10px] text-gray-500 rotate-45 origin-left">
+                  <span className="text-[10px] text-neutral-500 rotate-45 origin-left">
                     {new Date(day.date).getDate()}
                   </span>
                 </div>
@@ -65,22 +65,22 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Role Distribution */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card p-6">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <Users className="h-5 w-5 text-primary-600" />
             Role Distribution
           </h3>
           <div className="mt-4 space-y-3">
             {data.role_distribution.length === 0 ? (
-              <p className="text-sm text-gray-500">No data yet.</p>
+              <p className="text-sm text-neutral-500">No data yet.</p>
             ) : (
               data.role_distribution.map((r) => (
                 <div key={r.role}>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="capitalize text-gray-700">{r.role.replace("_", " ")}</span>
-                    <span className="font-medium text-gray-900">{r.count}</span>
+                    <span className="capitalize text-neutral-700">{r.role.replace("_", " ")}</span>
+                    <span className="font-medium text-neutral-900">{r.count}</span>
                   </div>
-                  <div className="mt-1 h-2 w-full rounded-full bg-gray-100">
+                  <div className="mt-1 h-2 w-full rounded-full bg-neutral-100">
                     <div
                       className={`h-2 rounded-full ${barColor(r.role)}`}
                       style={{ width: `${totalUsers > 0 ? (r.count / totalUsers) * 100 : 0}%` }}
@@ -93,14 +93,14 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Login Activity */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 lg:col-span-2">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg border border-neutral-200 bg-surface-card p-6 lg:col-span-2">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <LogIn className="h-5 w-5 text-primary-600" />
             Login Activity (30 days)
           </h3>
           <div className="mt-4 h-48 flex items-end gap-1">
             {data.login_activity.length === 0 ? (
-              <p className="text-sm text-gray-500">No data yet.</p>
+              <p className="text-sm text-neutral-500">No data yet.</p>
             ) : (
               data.login_activity.map((day) => (
                 <div key={day.date} className="flex flex-1 flex-col items-center gap-1">
@@ -111,7 +111,7 @@ export default function AnalyticsPage() {
                       minHeight: day.count > 0 ? "4px" : "0",
                     }}
                   />
-                  <span className="text-[10px] text-gray-500 rotate-45 origin-left">
+                  <span className="text-[10px] text-neutral-500 rotate-45 origin-left">
                     {new Date(day.date).getDate()}
                   </span>
                 </div>

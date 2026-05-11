@@ -27,27 +27,27 @@ export function DataTable<T>({
   const paginated = data.slice(start, start + pageSize);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div className="overflow-x-auto rounded-lg border border-neutral-200">
+      <table className="min-w-full divide-y divide-neutral-200">
+        <thead className="bg-neutral-50">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500"
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-neutral-200 bg-surface-card">
           {paginated.map((row) => (
-            <tr key={keyExtractor(row)} className="hover:bg-gray-50">
+            <tr key={keyExtractor(row)} className="hover:bg-neutral-50">
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
+                  className="whitespace-nowrap px-6 py-4 text-sm text-neutral-900"
                 >
                   {col.render
                     ? col.render(row)
@@ -59,22 +59,22 @@ export function DataTable<T>({
         </tbody>
       </table>
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 px-6 py-3">
-          <span className="text-sm text-gray-700">
+        <div className="flex items-center justify-between border-t border-neutral-200 px-6 py-3">
+          <span className="text-sm text-neutral-700">
             Page {page} of {totalPages}
           </span>
           <div className="flex gap-2">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-50"
+              className="rounded border border-neutral-300 px-3 py-1 text-sm hover:bg-neutral-50 disabled:opacity-50"
             >
               Previous
             </button>
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-50"
+              className="rounded border border-neutral-300 px-3 py-1 text-sm hover:bg-neutral-50 disabled:opacity-50"
             >
               Next
             </button>

@@ -27,8 +27,8 @@ export default function LoginPage() {
 
   return (
     <Card>
-      <h2 className="text-2xl font-bold text-gray-900">Log in</h2>
-      <p className="mt-1 text-sm text-gray-600">
+      <h2 className="text-2xl font-bold text-neutral-900">Log in</h2>
+      <p className="mt-1 text-sm text-neutral-600">
         Welcome back! Please enter your details.
       </p>
 
@@ -51,13 +51,13 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-error-text">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Logging in..." : "Log in"}
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-sm text-neutral-600">
         <Link href="/forgot-password" className="text-primary-600 hover:underline">
           Forgot password?
         </Link>
@@ -67,10 +67,10 @@ export default function LoginPage() {
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-neutral-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              <span className="bg-surface-card px-2 text-neutral-500">Or continue with</span>
             </div>
           </div>
           <div className="mt-4 flex flex-col gap-2">
@@ -78,7 +78,7 @@ export default function LoginPage() {
               <a
                 key={p.id}
                 href={`/api/auth/oauth/${p.id}`}
-                className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="inline-flex items-center justify-center rounded-md border border-neutral-300 bg-surface-card px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
               >
                 {p.name}
               </a>
@@ -87,7 +87,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-neutral-600">
         Don&apos;t have an account?{" "}
         <Link href="/signup" className="text-primary-600 hover:underline">
           Sign up

@@ -23,12 +23,12 @@ export default function ForgotPasswordPage() {
   if (submitted) {
     return (
       <Card>
-        <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
-        <p className="mt-2 text-gray-600">
+        <h2 className="text-2xl font-bold text-neutral-900">Check your email</h2>
+        <p className="mt-2 text-neutral-600">
           If an account exists with that email, we&apos;ve sent a password reset
           link.
         </p>
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-4 text-sm text-neutral-500">
           <Link href="/login" className="text-primary-600 hover:underline">
             Back to login
           </Link>
@@ -39,8 +39,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <Card>
-      <h2 className="text-2xl font-bold text-gray-900">Reset password</h2>
-      <p className="mt-1 text-sm text-gray-600">
+      <h2 className="text-2xl font-bold text-neutral-900">Reset password</h2>
+      <p className="mt-1 text-sm text-neutral-600">
         Enter your email and we&apos;ll send you a reset link.
       </p>
 
@@ -54,13 +54,13 @@ export default function ForgotPasswordPage() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-error-text">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Sending..." : "Send reset link"}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-neutral-600">
         Remember your password?{" "}
         <Link href="/login" className="text-primary-600 hover:underline">
           Log in

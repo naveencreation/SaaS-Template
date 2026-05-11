@@ -45,8 +45,8 @@ export default function NotificationsPage() {
 
   const iconMap = {
     info: <Bell className="h-5 w-5 text-primary-500" />,
-    warning: <AlertCircle className="h-5 w-5 text-yellow-500" />,
-    success: <ShieldCheck className="h-5 w-5 text-green-500" />,
+    warning: <AlertCircle className="h-5 w-5 text-warning-solid" />,
+    success: <ShieldCheck className="h-5 w-5 text-success-solid" />,
   };
 
   if (loading) return <PageLayout title="Notifications"><PageSkeleton /></PageLayout>;
@@ -55,20 +55,20 @@ export default function NotificationsPage() {
     <PageLayout title="Notifications">
       <div className="space-y-3">
         {notifications.length === 0 ? (
-          <p className="text-sm text-gray-500">No notifications yet.</p>
+          <p className="text-sm text-neutral-500">No notifications yet.</p>
         ) : (
           notifications.map((n) => (
             <div
               key={n.id}
               className={`flex items-start gap-3 rounded-lg border p-4 ${
-                n.read ? "border-gray-200 bg-white" : "border-primary-200 bg-primary-50"
+                n.read ? "border-neutral-200 bg-surface-card" : "border-primary-200 bg-primary-50"
               }`}
             >
               <div className="mt-0.5">{iconMap[n.type]}</div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{n.title}</p>
-                <p className="text-sm text-gray-600">{n.message}</p>
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="text-sm font-medium text-neutral-900">{n.title}</p>
+                <p className="text-sm text-neutral-600">{n.message}</p>
+                <p className="mt-1 text-xs text-neutral-400">
                   {new Date(n.created_at).toLocaleString()}
                 </p>
               </div>

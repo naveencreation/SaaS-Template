@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 import { useMutation } from "@/hooks/useMutation";
 
 export default function ResetPasswordPage() {
@@ -40,7 +39,7 @@ export default function ResetPasswordPage() {
 
   if (submitted) {
     return (
-      <Card>
+      <>
         <h2 className="text-2xl font-bold text-success-text">Password updated</h2>
         <p className="mt-2 text-neutral-600">
           Your password has been reset successfully.
@@ -50,31 +49,30 @@ export default function ResetPasswordPage() {
             Log in with your new password
           </Link>
         </p>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
-      <h2 className="text-2xl font-bold text-neutral-900">Set new password</h2>
-      <p className="mt-1 text-sm text-neutral-600">
-        Enter your new password below.
-      </p>
+    <>
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-neutral-900">Set new password</h2>
+        <p className="mt-1 text-sm text-neutral-600">
+          Enter your new password below.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Input
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <PasswordInput
           label="New password"
-          name="password"
-          type="password"
           placeholder="Min 8 chars, 1 uppercase, 1 number"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Input
+        <PasswordInput
           label="Confirm password"
           name="confirm"
-          type="password"
           placeholder="••••••••"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
@@ -86,6 +84,6 @@ export default function ResetPasswordPage() {
           {loading ? "Updating..." : "Reset password"}
         </Button>
       </form>
-    </Card>
+    </>
   );
 }

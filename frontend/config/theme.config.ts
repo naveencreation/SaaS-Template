@@ -92,6 +92,13 @@ export const theme = {
       background: "#f9fafb",
       card: "#ffffff",
       inverse: "#111827",
+      authPanel: "#f3f4f6",
+    },
+    auth: {
+      gradient: {
+        from: "#2563eb",
+        to: "#6366f1",
+      },
     },
     decorative: {
       blue: { text: "#2563eb", bg: "#eff6ff" },
@@ -211,6 +218,11 @@ export const cssVariables = {
   "--color-surface-background": theme.colors.surface.background,
   "--color-surface-card": theme.colors.surface.card,
   "--color-surface-inverse": theme.colors.surface.inverse,
+  "--color-surface-auth-panel": theme.colors.surface.authPanel,
+
+  // ── Auth gradient ──
+  "--color-auth-gradient-from": theme.colors.auth.gradient.from,
+  "--color-auth-gradient-to": theme.colors.auth.gradient.to,
 
   // ── Decorative (landing page only) ──
   "--color-decorative-blue-text": theme.colors.decorative.blue.text,

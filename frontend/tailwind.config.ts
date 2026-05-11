@@ -76,6 +76,11 @@ const config: Config = {
           background: "var(--color-surface-background)",
           card: "var(--color-surface-card)",
           inverse: "var(--color-surface-inverse)",
+          "auth-panel": "var(--color-surface-auth-panel)",
+        },
+        "auth-gradient": {
+          from: "var(--color-auth-gradient-from)",
+          to: "var(--color-auth-gradient-to)",
         },
         decorative: {
           blue: { text: "var(--color-decorative-blue-text)", bg: "var(--color-decorative-blue-bg)" },

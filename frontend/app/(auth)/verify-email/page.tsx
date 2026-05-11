@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
 
 export default function VerifyEmailPage() {
@@ -45,14 +44,14 @@ export default function VerifyEmailPage() {
 
   if (status === "loading") {
     return (
-      <Card>
+      <div className="py-8">
         <PageSkeleton />
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card>
+    <>
       <h2
         className={`text-2xl font-bold ${
           status === "success" ? "text-success-text" : "text-error-text"
@@ -75,6 +74,6 @@ export default function VerifyEmailPage() {
           Go to login
         </Button>
       )}
-    </Card>
+    </>
   );
 }

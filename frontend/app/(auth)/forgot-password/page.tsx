@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { EmailInput } from "@/components/auth/EmailInput";
 import { useMutation } from "@/hooks/useMutation";
 
 export default function ForgotPasswordPage() {
@@ -22,7 +21,7 @@ export default function ForgotPasswordPage() {
 
   if (submitted) {
     return (
-      <Card>
+      <>
         <h2 className="text-2xl font-bold text-neutral-900">Check your email</h2>
         <p className="mt-2 text-neutral-600">
           If an account exists with that email, we&apos;ve sent a password reset
@@ -33,23 +32,21 @@ export default function ForgotPasswordPage() {
             Back to login
           </Link>
         </p>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
-      <h2 className="text-2xl font-bold text-neutral-900">Reset password</h2>
-      <p className="mt-1 text-sm text-neutral-600">
-        Enter your email and we&apos;ll send you a reset link.
-      </p>
+    <>
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-neutral-900">Reset password</h2>
+        <p className="mt-1 text-sm text-neutral-600">
+          Enter your email and we&apos;ll send you a reset link.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Input
-          label="Email"
-          name="email"
-          type="email"
-          placeholder="you@example.com"
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <EmailInput
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -62,10 +59,10 @@ export default function ForgotPasswordPage() {
 
       <p className="mt-6 text-center text-sm text-neutral-600">
         Remember your password?{" "}
-        <Link href="/login" className="text-primary-600 hover:underline">
+        <Link href="/login" className="font-medium text-primary-600 hover:underline">
           Log in
         </Link>
       </p>
-    </Card>
+    </>
   );
 }
